@@ -17,7 +17,7 @@ int main()
 		char *csv_number = (char*)malloc(sizeof(char));
 		sprintf(csv_number,"%d",number);
 		printf("요놈은 java 파일입니다.\n");
-		char *arg[]= {"java","-jar","/home/song/2019Capstone/IOT/Sender.jar",csv_number,(char*)NULL};
+		char *arg[]= {"java","-jar","./Sender.jar","test.csv",(char*)NULL};
 		status = execvp("java",arg);
 		if(status<0)
 		{
