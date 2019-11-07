@@ -5,6 +5,6 @@ import retrofit2.http.GET;
 
 public interface JaehoApi {
     @GET("api/test/")
-    Single<String> getSomething();
+    Single<String> getResponse();
 
 }

@@ -2,38 +2,25 @@ package jaeho.jaehoserver.ui;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
+import jaeho.jaehoserver.MainContract;
 import jaeho.jaehoserver.R;
-import jaeho.jaehoserver.data.JaehoApi;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import jaeho.jaehoserver.data.JaehoDataSource;
 
-public class MainActivity extends AppCompatActivity {
-
-    private static final String url = "https://jaeho.dev/";
-
-    private JaehoApi api = new Retrofit.Builder()
-            .baseUrl(url)
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(JaehoApi.class);
+public class MainActivity extends AppCompatActivity implements MainContract.View {
 
     private Disposable disposable;
     private TextView error_text;
     private TextView text;
+    private JaehoDataSource dataSource = JaehoDataSource.getInstance();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,8 +34,7 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        api.getSomething()
-                                .subscribeOn(Schedulers.io())
+                        dataSource.getResponse()
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(new SingleObserver<String>() {
                                     @Override
