@@ -29,6 +29,7 @@ public class JaehoDataSource {
 
     private JaehoApi api = new Retrofit.Builder()
             .baseUrl(url)
+            //TODO 여기서 Rxjava 없애게 되면 아래 이 친구만 지우면 됨
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create()) //Rxjava를 사용했기 때문에 필요함
             .addConverterFactory(GsonConverterFactory.create())//이거 없으면 Json Data Parsing error (Gson Converter)
             .build()
@@ -38,6 +39,7 @@ public class JaehoDataSource {
      * 외부에서 DataSource로 데이터를 요청하기 위한 함수
      * @return 데이터가 담긴 Single<String> 스트림을 반환한다.
      */
+    //TODO Single<String> 을 원하는 형태로 변경
     public Single<String> getResponse() {
         return api.getResponse()
                 .subscribeOn(Schedulers.io());
