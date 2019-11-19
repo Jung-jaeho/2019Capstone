@@ -4,7 +4,7 @@ int write_csv(char* value,int number,int count)
 {
 	char file_name[150];
 	int fd;
-	sprintf(file_name,"%s%d_%d",FILE_NAME,number,count);
+	sprintf(file_name,"%s%s%d_%d",FOLDER_NAME,FILE_NAME,number,count);
 	fd = open(file_name,O_WRONLY|O_CREAT|O_APPEND,0777);
 	write(fd,value,strlen(value));
 	close(fd);
@@ -22,7 +22,7 @@ int group_csv_file(int number)
 	char object[1024];
 	for(i = 0 ; i <7;i++)
 	{
-		sprintf(file_name[i],"%s%d_%d",FILE_NAME,i+1,number);
+		sprintf(file_name[i],"%s%s%d_%d",FOLDER_NAME,FILE_NAME,i+1,number);
 		fd[i] = open(file_name[i],O_RDONLY,0777);
 		if(fd[i] <0)
 		{
@@ -42,11 +42,11 @@ int group_csv_file(int number)
 			while((r_len= read(fd[i],object,1024))>0)
 			{
 				send_msg msg;
-				printf("%s\n",object);
 				msg.value = object;
 				msg.len = r_len;
 				write_csv_to_fd(sfd,msg.value,msg.len);
 			}
+			remove(file_name[i]);
 		}
 	}
 }
