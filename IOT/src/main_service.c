@@ -38,6 +38,7 @@ int main()
 	{
 		pthread_join(pid[i],NULL);
 	}
+	sig_time(SIGCHLD);
 	printf("Finish\n");
 }
 void set_init()
@@ -102,7 +103,7 @@ static void sig_time(int signo)
 		if(status<0)
 		{
 			perror("status error");
-			return -1;
+			return;
 		}
 	}
 	alarm(10);
