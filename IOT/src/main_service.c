@@ -13,7 +13,8 @@ int main()
 	pthread_t pid[5];
 	char **addr_set = (char**)malloc(sizeof(char*)*7);
 	int i,count=0;
-	/*
+	printf("Server : %s\n",pro->send_server);
+	printf("Sirial_Number : %s\n",pro->sirial_number);
 	if(scan_bluetooth_addr(addr_set) < 0 )
 	{
 		printf("error \n");
@@ -29,8 +30,7 @@ int main()
 			count+= 1;
 		}
 	}
-	*/
-	alarm(30);
+	alarm(10);
 	int signo[2] = {SIGALRM,SIGCHLD};
 	void (*signal_function[2])(int) = {sig_time,sig_child};
 	set_signal_setting(2,signo,signal_function);
@@ -44,12 +44,14 @@ void set_init()
 {
 	if(mkdir("/airbeat",0777)>=0)
 	{
+		mkdir("/airbeat/sensor_csv",0777);
 		int i;
 		properties_value pv;
+		/*
 		pv.sirial_number = (char*)malloc(200);
 		pv.send_server = (char*)malloc(200);
 		pv.arduino_count = 0;
-		mkdir("/airbeat/sensor_csv",0777);
+
 		printf("System_init\n");
 		printf("Serial_number_In : ");
 		scanf(" %s",pv.sirial_number);
@@ -65,6 +67,7 @@ void set_init()
 			scanf(" %s",pv.arduino_mac[i]);
 		}
 		write_properties(&pv);
+		*/
 		pro = read_properties();
 	}
 	else
@@ -85,17 +88,16 @@ void set_signal_setting(int sig_count,int *signo,void (**signal_function)(int))
 }
 static void sig_time(int signo)
 {
-	printf("TEST\n");
-	group_csv_file(number++);
-	alarm(30);
+	printf("SigAlarm\n");
+	int status;
 	int signo_num = SIGALRM;
 	void (*signal_function)(int) = sig_time;
-	set_signal_setting(2,&signo_num,&signal_function);
-	/*
 	group_csv_file(number++);
-	if(fork == 0)
+	set_signal_setting(1,&signo_num,&signal_function);
+	if(fork() == 0)
 	{
-		char *arg[]= {"java","-jar","/home/song/2019Capstone/IOT/Sender.jar",SEND_FILE_NAME,args[1],(char*)NULL};
+		printf("EXECP\n");
+		char *arg[]= {"java","-jar","./Sender.jar",SEND_FILE_NAME,pro->send_server,pro->sirial_number,(char*)NULL};
 		status = execvp("java",arg);
 		if(status<0)
 		{
@@ -103,11 +105,13 @@ static void sig_time(int signo)
 			return -1;
 		}
 	}
-	alarm(30);
-	*/
+	alarm(10);
 }
 static void sig_child(int signo)
 {
+	int signo_num = SIGCHLD;
+	void (*signal_function)(int) = sig_child;
+	set_signal_setting(1,&signo_num,&signal_function);
 	remove(SEND_FILE_NAME);	
 }
 void* read_connection(void* ar)
