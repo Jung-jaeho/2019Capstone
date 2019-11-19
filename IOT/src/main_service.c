@@ -1,15 +1,19 @@
 #include"main_service.h"
 #include"csv_writer/csv_writer.h"
+#include"properties_pack/read_properties.h"
 
+properties_value *pro;
 unsigned int number=0;
+void set_init();
 int main()
 {
-	char arduino_name[16] = "TestArduino_one";
+	set_init();
 	float value[4];
 	thread_argv *argv;
 	pthread_t pid[5];
 	char **addr_set = (char**)malloc(sizeof(char*)*7);
 	int i,count=0;
+	/*
 	if(scan_bluetooth_addr(addr_set) < 0 )
 	{
 		printf("error \n");
@@ -25,15 +29,49 @@ int main()
 			count+= 1;
 		}
 	}
+	*/
 	alarm(30);
-	//int signo[2] = {SIGALRM,SIGCHLD};
-	//void (*signal_function[2])(int) = {sig_time,sig_child};
-	//set_signal_setting(2,signo,signal_function);
+	int signo[2] = {SIGALRM,SIGCHLD};
+	void (*signal_function[2])(int) = {sig_time,sig_child};
+	set_signal_setting(2,signo,signal_function);
 	for(i = 0 ; i <count;i++)
 	{
 		pthread_join(pid[i],NULL);
 	}
 	printf("Finish\n");
+}
+void set_init()
+{
+	if(mkdir("/airbeat",0777)>=0)
+	{
+		int i;
+		properties_value pv;
+		pv.sirial_number = (char*)malloc(200);
+		pv.send_server = (char*)malloc(200);
+		pv.arduino_count = 0;
+		mkdir("/airbeat/sensor_csv",0777);
+		printf("System_init\n");
+		printf("Serial_number_In : ");
+		scanf(" %s",pv.sirial_number);
+		printf("Send-Server : ");
+		scanf(" %s",pv.send_server);
+		printf("Arduino-Count : ");
+		scanf(" %d",&pv.arduino_count);
+		pv.arduino_mac = (char**)malloc(sizeof(char*)*pv.arduino_count);
+		for(i =0 ;i <pv.arduino_count;i++)
+		{
+			pv.arduino_mac[i]= (char*)malloc(200);
+			printf("Arduino-MAC : ");
+			scanf(" %s",pv.arduino_mac[i]);
+		}
+		write_properties(&pv);
+		pro = read_properties();
+	}
+	else
+	{
+		pro = read_properties();
+	}
+	return;
 }
 void set_signal_setting(int sig_count,int *signo,void (**signal_function)(int))
 {
@@ -47,6 +85,13 @@ void set_signal_setting(int sig_count,int *signo,void (**signal_function)(int))
 }
 static void sig_time(int signo)
 {
+	printf("TEST\n");
+	group_csv_file(number++);
+	alarm(30);
+	int signo_num = SIGALRM;
+	void (*signal_function)(int) = sig_time;
+	set_signal_setting(2,&signo_num,&signal_function);
+	/*
 	group_csv_file(number++);
 	if(fork == 0)
 	{
@@ -59,6 +104,7 @@ static void sig_time(int signo)
 		}
 	}
 	alarm(30);
+	*/
 }
 static void sig_child(int signo)
 {
@@ -94,11 +140,10 @@ void* read_connection(void* ar)
 		char send;
 		char s_buf[256];
 		send = 'A'+(port-1);
-		printf("arduino number : %c\n",send);
 		write(s,&send,1);
-		for(j = 0 ; j < 10 ;j++)
+		printf("port %d : connect: %s\n",port,argv);
+		for(j = 0 ; j < 50 ;j++)
 		{
-			printf("port %d : connect: %s\n",port,argv);
 			char buf[128];
 			int r_len;
 			r_len = read_wait(s);
@@ -106,12 +151,14 @@ void* read_connection(void* ar)
 			if(r_len!=0)
 			{
 				r_len = read_bltooth(s,buf,r_len);
+				if(r_len == 0)
+					continue;
 				printf("Size : %d %s\n",r_len,buf);
 				buf[r_len-1] = '\0';
 				struct s_time *t= getTime();
 				r_len = sprintf(s_buf,"%c,%02d:%02d:%02d,%s\n",send,t->hour,t->min,t->sec,buf);
 				free(t);
-				write_csv(s_buf,port,0);
+				write_csv(s_buf,port,number);
 			}
 		}
 	}
