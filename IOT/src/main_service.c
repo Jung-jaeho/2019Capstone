@@ -1,60 +1,10 @@
 #include"main_service.h"
-#include"csv_writer/csv_writer.h"
-#include"properties_pack/read_properties.h"
-#include"bluetooth_pack/bluetooth_service.h"
 
-bt_table table[7];
-properties_value *pro;
+
 unsigned int number=0;
-void set_init();
-int main()
-{
-	set_init();
-	float value[4];
-	thread_argv *argv;
-	pthread_t pid[5];
-	char **addr_set = (char**)malloc(sizeof(char*)*7);
-	int i,count=0;
-	printf("Server : %s\n",pro->send_server);
-	printf("Sirial_Number : %s\n",pro->sirial_number);
-	if(scan_bluetooth_addr(addr_set) < 0 )
-	{
-		printf("error \n");
-	}
-	for(i = 0; i<7;i++)
-	{
-		int j;
-		if( *(addr_set+i) != NULL )
-		{
-			argv = (thread_argv*)malloc(sizeof(thread_argv));
-			argv->addr= *(addr_set+i);
-			for(j = 0 ; j < pro->arduino_count;j ++)
-			{
-				if(strcmp(*(addr_set+i),pro->arduino_mac[j]+2)==0)
-				{
-					strcpy(table[i].str,*(addr_set+i));
-					argv->port = pro->arduino_mac[j][0];
-					printf("%c",pro->arduino_mac[j][0]);
-					pthread_create(&pid[i],NULL,read_connection,(void*)argv);
-					count+= 1;
-					break;
-				}
-			}
 
-		}		
-	}
-	alarm(20);
-	int signo[2] = {SIGALRM,SIGCHLD};
-	void (*signal_function[2])(int) = {sig_time,sig_child};
-	set_signal_setting(2,signo,signal_function);
-	for(i = 0 ; i <count;i++)
-	{
-		pthread_join(pid[i],NULL);
-	}
-	sig_time(SIGCHLD);
-	sig_child(SIGCHLD);
-	printf("Finish\n");
-}
+struct bt_table table[7];
+struct properties_value *pro;
 void set_init()
 {
 	if(mkdir("/airbeat",0777)>=0)
@@ -70,51 +20,16 @@ void set_init()
 	}
 	return;
 }
-void set_signal_setting(int sig_count,int *signo,void (**signal_function)(int))
-{
-	int i;
-	for(i = 0 ; i < sig_count;i++)
-	{
-		struct sigaction act;
-		act.sa_handler = signal_function[i];
-		sigaction(signo[i],&act,NULL);
-	}
-}
-static void sig_time(int signo)
-{
-	printf("SigAlarm\n");
-	int status;
-	int signo_num = SIGALRM;
-	void (*signal_function)(int) = sig_time;
-	group_csv_file(number++);
-	set_signal_setting(1,&signo_num,&signal_function);
-	if(fork() == 0)
-	{
-		printf("EXECP\n");
-		char *arg[]= {"java","-jar","./Sender.jar",SEND_FILE_NAME,pro->send_server,pro->sirial_number,(char*)NULL};
-		status = execvp("java",arg);
-		if(status<0)
-		{
-			perror("status error");
-			return;
-		}
-	}
-	alarm(10);
-}
-static void sig_child(int signo)
-{
-	int signo_num = SIGCHLD;
-	void (*signal_function)(int) = sig_child;
-	set_signal_setting(1,&signo_num,&signal_function);
-	remove(SEND_FILE_NAME);	
-}
 void* read_connection(void* ar)
 {
 	struct sockaddr_rc addr= {0};
 	thread_argv *m_ar = (thread_argv*)ar;
 	char* argv = m_ar->addr;
 	char port = m_ar->port;
-	int s,status,i;
+	int p_count = m_ar->count;
+	int s,status=-1,i;
+	int connect_count = 0;
+RE_CONNECTION:
 	s = socket(AF_BLUETOOTH,SOCK_STREAM,BTPROTO_RFCOMM);
 	printf("%c\n",port);
 	if(s <0 )
@@ -123,16 +38,21 @@ void* read_connection(void* ar)
 		goto SOCK_ERROR;
 	}
 	printf("port %c : addr %s\n",port,argv);
-	addr.rc_family = AF_BLUETOOTH;
-	addr.rc_channel = (uint8_t)1;
-	str2ba(argv,&addr.rc_bdaddr);
-	status = connect(s,(struct sockaddr *)&addr,sizeof(addr));
-
-	if(status < 0)
-	{
-		printf("port %c : connect Error\n",port);
-		goto STATUS_ERROR;
+	while(status < 0)
+	{ 	
+		printf("Try connection... %s\n",argv);
+		addr.rc_family = AF_BLUETOOTH;
+		addr.rc_channel = (uint8_t)1;
+		str2ba(argv,&addr.rc_bdaddr);
+		status = connect(s,(struct sockaddr *)&addr,sizeof(addr));
+		usleep(1000*1000);
+		connect_count++;
+		if(connect_count >10)
+		{
+			goto STATUS_ERROR;
+		}
 	}
+	table[i].tf=true;
 	if(status == 0)
 	{
 		int j;
@@ -140,7 +60,7 @@ void* read_connection(void* ar)
 		char s_buf[256];
 		write(s,&port,1);
 		printf("port %c : connect: %s\n",port,argv);
-		while(1)
+		while(table[i].tf)
 		{
 			char buf[128];
 			int r_len;
@@ -159,8 +79,8 @@ void* read_connection(void* ar)
 				write_csv(s_buf,(port-'A')+1,number);
 			}
 		}
+		goto RE_CONNECTION;
 	}
-	goto DONE;
 SOCK_ERROR:
 	return (void*)-1;
 STATUS_ERROR:
@@ -170,7 +90,6 @@ DONE:
 	close(s);
 	return (void*)0; 
 }
-
 struct s_time *getTime()
 {
 	struct s_time *rs = (struct s_time*)malloc(sizeof(struct s_time));
@@ -181,4 +100,53 @@ struct s_time *getTime()
 	rs->sec = t->tm_sec;
 	return rs;
 }
+int main()
+{
+	set_init();
+	float value[4];
+	thread_argv *argv;
+	pthread_t pid[5];
+	char **addr_set = (char**)malloc(sizeof(char*)*7);
+	int i,count=0;
+	printf("Server : %s\n",pro->send_server);
+	printf("Sirial_Number : %s\n",pro->sirial_number);
+	memset(table,0,sizeof(table));
+	if(scan_bluetooth_addr(addr_set) < 0 )
+	{
+		printf("error \n");
+	}
+	for(i = 0; i<7;i++)
+	{
+		int j;
+		if( *(addr_set+i) != NULL )
+		{
+			argv = (thread_argv*)malloc(sizeof(thread_argv));
+			argv->addr= *(addr_set+i);
+			for(j = 0 ; j < pro->arduino_count;j ++)
+			{
+				if(strcmp(*(addr_set+i),pro->arduino_mac[j]+2)==0)
+				{
 
+					argv->count = i;
+					argv->port = pro->arduino_mac[j][0];
+					table[i].addr = *(addr_set+i);
+					table[i].connect_number = argv->port-'A'+1;
+					pthread_create(&pid[i],NULL,read_connection,(void*)argv);
+					count+= 1;
+					break;
+				}
+			}
+		}	
+	}
+	alarm(20);
+	int signo[2] = {SIGALRM,SIGCHLD};
+	void (*signal_function[2])(int) = {sig_time,sig_child};
+	set_signal_setting(2,signo,signal_function);
+	for(i = 0 ; i <count;i++)
+	{
+		pthread_join(pid[i],NULL);
+	}
+	sig_time(SIGCHLD);
+	sig_child(SIGCHLD);
+	printf("Finish\n");
+}

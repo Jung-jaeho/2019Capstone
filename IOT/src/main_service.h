@@ -1,20 +1,27 @@
-#include"header.h"
+#define _MAIN_SERVICE_H
 
 #include<pthread.h>
+#include"bluetooth_pack/bluetooth_service.h"
+#include"properties_pack/read_properties.h"
+#include"csv_writer/csv_writer.h"
+#include"sig_pack/sig_service.h"
+
+#ifndef _GLOBAL_H
+#include"main_shared.h"
+#include"header.h"
+#endif
+
 typedef struct thread_argv{
 	char* addr;
 	char port;
+	int count;
 }thread_argv;
 struct s_time {
 	int hour;
 	int min;
 	int sec;
 };
-int scan_bluetooth_addr(char **addrset);
+
 struct s_time *getTime();
 void* read_connection(void* ar);
-int read_bltooth(int fd, char* object,int size);
-int read_wait(int fd);
-static void sig_time(int signo);
-static void sig_child(int signo);
-void set_signal_setting(int sig_count,int *signo,void (**signal_function)(int));
+void set_init();
