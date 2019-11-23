@@ -1,5 +1,7 @@
 #include"csv_writer.h"
 #include"header.h"
+
+
 int write_csv(char* value,int number,int count)
 {
 	char file_name[150];
@@ -20,6 +22,10 @@ int group_csv_file(int number)
 	int fd[7],sfd=-1,i,now_count,r_len;
 	char file_name[7][150];
 	char object[1024];
+	for(i = 0 ; i < pro->arduino_count;i++)
+	{
+		
+	}
 	for(i = 0 ; i <7;i++)
 	{
 		sprintf(file_name[i],"%s%s%d_%d",FOLDER_NAME,FILE_NAME,i+1,number);

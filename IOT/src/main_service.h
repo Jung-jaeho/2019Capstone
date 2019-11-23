@@ -1,13 +1,9 @@
 #include"header.h"
-#include<bluetooth/bluetooth.h>
-#include<bluetooth/hci.h>
-#include<bluetooth/hci_lib.h>
-#include<bluetooth/rfcomm.h>
-#include<bluetooth/l2cap.h>
+
 #include<pthread.h>
 typedef struct thread_argv{
 	char* addr;
-	int port;
+	char port;
 }thread_argv;
 struct s_time {
 	int hour;

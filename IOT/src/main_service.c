@@ -1,7 +1,9 @@
 #include"main_service.h"
 #include"csv_writer/csv_writer.h"
 #include"properties_pack/read_properties.h"
+#include"bluetooth_pack/bluetooth_service.h"
 
+bt_table table[7];
 properties_value *pro;
 unsigned int number=0;
 void set_init();
@@ -21,16 +23,27 @@ int main()
 	}
 	for(i = 0; i<7;i++)
 	{
+		int j;
 		if( *(addr_set+i) != NULL )
 		{
 			argv = (thread_argv*)malloc(sizeof(thread_argv));
 			argv->addr= *(addr_set+i);
-			argv->port = i+1;
-			pthread_create(&pid[i],NULL,read_connection,(void*)argv);
-			count+= 1;
-		}
+			for(j = 0 ; j < pro->arduino_count;j ++)
+			{
+				if(strcmp(*(addr_set+i),pro->arduino_mac[j]+2)==0)
+				{
+					strcpy(table[i].str,*(addr_set+i));
+					argv->port = pro->arduino_mac[j][0];
+					printf("%c",pro->arduino_mac[j][0]);
+					pthread_create(&pid[i],NULL,read_connection,(void*)argv);
+					count+= 1;
+					break;
+				}
+			}
+
+		}		
 	}
-	alarm(10);
+	alarm(20);
 	int signo[2] = {SIGALRM,SIGCHLD};
 	void (*signal_function[2])(int) = {sig_time,sig_child};
 	set_signal_setting(2,signo,signal_function);
@@ -39,6 +52,7 @@ int main()
 		pthread_join(pid[i],NULL);
 	}
 	sig_time(SIGCHLD);
+	sig_child(SIGCHLD);
 	printf("Finish\n");
 }
 void set_init()
@@ -48,27 +62,6 @@ void set_init()
 		mkdir("/airbeat/sensor_csv",0777);
 		int i;
 		properties_value pv;
-		/*
-		pv.sirial_number = (char*)malloc(200);
-		pv.send_server = (char*)malloc(200);
-		pv.arduino_count = 0;
-
-		printf("System_init\n");
-		printf("Serial_number_In : ");
-		scanf(" %s",pv.sirial_number);
-		printf("Send-Server : ");
-		scanf(" %s",pv.send_server);
-		printf("Arduino-Count : ");
-		scanf(" %d",&pv.arduino_count);
-		pv.arduino_mac = (char**)malloc(sizeof(char*)*pv.arduino_count);
-		for(i =0 ;i <pv.arduino_count;i++)
-		{
-			pv.arduino_mac[i]= (char*)malloc(200);
-			printf("Arduino-MAC : ");
-			scanf(" %s",pv.arduino_mac[i]);
-		}
-		write_properties(&pv);
-		*/
 		pro = read_properties();
 	}
 	else
@@ -120,23 +113,24 @@ void* read_connection(void* ar)
 	struct sockaddr_rc addr= {0};
 	thread_argv *m_ar = (thread_argv*)ar;
 	char* argv = m_ar->addr;
-	int port = m_ar->port;
+	char port = m_ar->port;
 	int s,status,i;
 	s = socket(AF_BLUETOOTH,SOCK_STREAM,BTPROTO_RFCOMM);
-	printf("%d\n",port);
+	printf("%c\n",port);
 	if(s <0 )
 	{
-		printf("port %d: Socket open fail:",port);
+		printf("port %c: Socket open fail:",port);
 		goto SOCK_ERROR;
 	}
-	printf("port %d : addr %s\n",port,argv);
+	printf("port %c : addr %s\n",port,argv);
 	addr.rc_family = AF_BLUETOOTH;
 	addr.rc_channel = (uint8_t)1;
 	str2ba(argv,&addr.rc_bdaddr);
 	status = connect(s,(struct sockaddr *)&addr,sizeof(addr));
+
 	if(status < 0)
 	{
-		printf("port %d : connect Error\n",port);
+		printf("port %c : connect Error\n",port);
 		goto STATUS_ERROR;
 	}
 	if(status == 0)
@@ -144,10 +138,9 @@ void* read_connection(void* ar)
 		int j;
 		char send;
 		char s_buf[256];
-		send = 'A'+(port-1);
-		write(s,&send,1);
-		printf("port %d : connect: %s\n",port,argv);
-		for(j = 0 ; j < 50 ;j++)
+		write(s,&port,1);
+		printf("port %c : connect: %s\n",port,argv);
+		while(1)
 		{
 			char buf[128];
 			int r_len;
@@ -161,9 +154,9 @@ void* read_connection(void* ar)
 				printf("Size : %d %s\n",r_len,buf);
 				buf[r_len-1] = '\0';
 				struct s_time *t= getTime();
-				r_len = sprintf(s_buf,"%c,%02d:%02d:%02d,%s\n",send,t->hour,t->min,t->sec,buf);
+				r_len = sprintf(s_buf,"%c,%02d:%02d:%02d,%s\n",port,t->hour,t->min,t->sec,buf);
 				free(t);
-				write_csv(s_buf,port,number);
+				write_csv(s_buf,(port-'A')+1,number);
 			}
 		}
 	}
@@ -178,61 +171,6 @@ DONE:
 	return (void*)0; 
 }
 
-int scan_bluetooth_addr(char **addrset)
-{
-	char addr[18],name[255];
-	uint8_t lap[3] = {0x33,0x8b,0x9e};
-	struct hci_dev_info di;
-	inquiry_info *info = NULL;	
-	int dd=0,dev_id,i,num_rsp=0,length=8,n=0,flags=0;
-	dev_id = hci_get_route(NULL);
-	if(dev_id < 0 )
-	{
-		perror("Device not Inside");
-		goto ERROR_EXIT;
-	}
-	if(hci_devinfo(dev_id,&di)<0)
-	{
-		perror("can`t get device info");
-		goto ERROR_EXIT;
-	}
-	num_rsp = hci_inquiry(dev_id,length,num_rsp,lap,&info,flags);
-	if(num_rsp <0)
-	{
-		perror("inquiry error");
-		goto ERROR_EXIT;
-	}
-	dd = hci_open_dev(dev_id);
-	if(dd<0)
-	{
-		perror("HCI_device open filed");
-		goto ERROR_EXIT;
-	}
-	memset(addrset,0,sizeof(char*)*7);
-	for(i = 0 ; i < num_rsp;i++)
-	{
-		ba2str(&(info+i)->bdaddr,addr);
-		if(hci_read_remote_name(dd,&(info+i)->bdaddr,sizeof(name),name,10000)<0)
-		{
-			strcpy(name,"N/A");
-		}
-		if(strcmp(name,"HC-06") == 0)
-		{
-			addrset[n] = (char*)malloc(sizeof(char)*18);
-			strcpy(addrset[n],addr);
-			n++;
-		}
-		printf("%s %s\n",addr,name);
-	}
-	goto DONE;
-ERROR_EXIT:
-	bt_free(info);
-	hci_close_dev(dd);
-	return -1;
-DONE:
-	bt_free(info);
-	hci_close_dev(dd);
-}
 struct s_time *getTime()
 {
 	struct s_time *rs = (struct s_time*)malloc(sizeof(struct s_time));
@@ -243,35 +181,4 @@ struct s_time *getTime()
 	rs->sec = t->tm_sec;
 	return rs;
 }
-int read_bltooth(int fd, char* object,int size)
-{
-	int length,rd_length;
-	rd_length = read(fd,object,size);
-	if(rd_length < size)
-	{
-		return 0;
-	}
-	char e_bit;
-	read(fd,&e_bit,1);
-	if(e_bit != 'E')return 0;
-	return rd_length;
-}
-int read_wait(int fd)
-{
-	char buf;
-	char length[2];
-	while(read(fd,&buf,1)<0);
-	if(buf == 'S'){
-		read(fd,length,2);
-		int size;
-		size = atoi(length);
-		printf("%d\n",size);
-		return size;
-	}
-	while(read(fd,&buf,1)>=0)
-	{
-		if(buf == 'E')
-			break;
-	}
-	return 0;
-}
+
