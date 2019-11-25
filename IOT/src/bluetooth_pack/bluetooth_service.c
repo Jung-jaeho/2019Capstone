@@ -17,14 +17,11 @@ int read_wait(int fd)
 	char buf;
 	char length[2];
 	int count=0;
-	while(read(fd,&buf,1)<0)
+	int error;
+	if((error = read(fd,&buf,1))<0)
 	{
-		count++;
-		if(count > 30)
-		{
-			return -2;
-		}
-		usleep(50*1000);
+		printf("%d\n",error);
+		return -2;
 	}
 	if(buf == 'S'){
 		read(fd,length,2);

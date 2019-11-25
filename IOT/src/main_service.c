@@ -29,22 +29,28 @@ void* read_connection(void* ar)
 	int p_count = m_ar->count;
 	int s,status=-1;
 	int connect_count = 0;
+	struct timeval tv;
+	tv.tv_sec = 20;
+	tv.tv_usec = 0;
 RE_CONNECTION:
-	s = socket(AF_BLUETOOTH,SOCK_STREAM,BTPROTO_RFCOMM);
-	printf("socket : %d\n",s);
-	if(s <0 )
-	{
-		printf("port %c: Socket open fail:",port);
-		goto SOCK_ERROR;
-	}
-	printf("port %c : addr %s\n",port,argv);
 	while(status < 0)
 	{ 	
-		printf("Try connection... %s\n",argv);
+		s = socket(AF_BLUETOOTH,SOCK_STREAM,BTPROTO_RFCOMM);
+		setsockopt(s,SOL_SOCKET,SO_RCVTIMEO,(char*)&tv,sizeof(struct timeval));
+		if(s <0 )
+		{
+			printf("port %c: Socket open fail:",port);
+			goto SOCK_ERROR;
+		}
 		addr->rc_family = AF_BLUETOOTH;
 		addr->rc_channel = (uint8_t)1;
 		str2ba(argv,&addr->rc_bdaddr);
 		status = connect(s,(struct sockaddr*)addr,sizeof(*addr));
+		printf("Connect Addr : ... %s\n ",argv);
+		if(status < 0)
+		{
+			close(s);
+		}
 		usleep(5000*1000);
 		connect_count++;
 		if(connect_count >100)
@@ -59,7 +65,6 @@ RE_CONNECTION:
 		char send;
 		char s_buf[256];
 		while(write(s,&port,1)<0);
-		fcntl(s,F_SETFL,fcntl(s,F_GETFL,0)|O_NONBLOCK);
 		while(table[p_count].tf)
 		{
 			char buf[128];
