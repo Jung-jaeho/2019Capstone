@@ -23,7 +23,7 @@ int group_csv_file(int number)
 	printf("arduino_count : %d\n",pro->arduino_count);
 	for(i = 0,j=0 ; i < pro->arduino_count;i++)
 	{
-		if(table[i].connect_number == 0 || table[i].tf)
+		if(table[i].connect_number == 0 || table[i].tf == false)
 		{
 			printf("number : %d\n",table[i].connect_number);
 			continue;
@@ -39,6 +39,7 @@ int group_csv_file(int number)
 	now_count = j;
 	if(fd[0]<0)
 		return -1;
+	printf("now_count = %d\n",now_count);
 	/*
 	for(i = 0 ; i <7;i++)
 	{

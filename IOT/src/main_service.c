@@ -10,28 +10,28 @@ void set_init()
 	if(mkdir("/airbeat",0777)>=0)
 	{
 		mkdir("/airbeat/sensor_csv",0777);
-		int i;
-		properties_value pv;
 		pro = read_properties();
 	}
 	else
 	{
+		remove("/airbeat/sensor_csv/*");
 		pro = read_properties();
 	}
 	return;
 }
 void* read_connection(void* ar)
 {
-	struct sockaddr_rc addr= {0};
+	struct sockaddr_rc *addr=(struct sockaddr_rc*)malloc(sizeof(struct sockaddr_rc));
+	memset(addr,0,sizeof(struct sockaddr_rc));
 	thread_argv *m_ar = (thread_argv*)ar;
 	char* argv = m_ar->addr;
 	char port = m_ar->port;
 	int p_count = m_ar->count;
-	int s,status=-1,i;
+	int s,status=-1;
 	int connect_count = 0;
 RE_CONNECTION:
 	s = socket(AF_BLUETOOTH,SOCK_STREAM,BTPROTO_RFCOMM);
-	printf("%c\n",port);
+	printf("socket : %d\n",s);
 	if(s <0 )
 	{
 		printf("port %c: Socket open fail:",port);
@@ -41,32 +41,34 @@ RE_CONNECTION:
 	while(status < 0)
 	{ 	
 		printf("Try connection... %s\n",argv);
-		addr.rc_family = AF_BLUETOOTH;
-		addr.rc_channel = (uint8_t)1;
-		str2ba(argv,&addr.rc_bdaddr);
-		status = connect(s,(struct sockaddr *)&addr,sizeof(addr));
-		usleep(1000*1000);
+		addr->rc_family = AF_BLUETOOTH;
+		addr->rc_channel = (uint8_t)1;
+		str2ba(argv,&addr->rc_bdaddr);
+		status = connect(s,(struct sockaddr*)addr,sizeof(*addr));
+		usleep(5000*1000);
 		connect_count++;
-		if(connect_count >10)
+		if(connect_count >100)
 		{
 			goto STATUS_ERROR;
 		}
 	}
-	table[i].tf=true;
+	table[p_count].tf=true;
 	if(status == 0)
 	{
 		int j;
 		char send;
 		char s_buf[256];
-		write(s,&port,1);
-		printf("port %c : connect: %s\n",port,argv);
-		while(table[i].tf)
+		while(write(s,&port,1)<0);
+		fcntl(s,F_SETFL,fcntl(s,F_GETFL,0)|O_NONBLOCK);
+		while(table[p_count].tf)
 		{
 			char buf[128];
 			int r_len;
 			r_len = read_wait(s);
+			if(r_len == -2)
+				table[p_count].tf = false;
 			usleep(1000*150);
-			if(r_len!=0)
+			if(r_len != 0)
 			{
 				r_len = read_bltooth(s,buf,r_len);
 				if(r_len == 0)
@@ -79,6 +81,10 @@ RE_CONNECTION:
 				write_csv(s_buf,(port-'A')+1,number);
 			}
 		}
+		close(s);
+		status = -1;
+		free(addr);
+		addr = (struct sockaddr_rc*)malloc(sizeof(struct sockaddr_rc));
 		goto RE_CONNECTION;
 	}
 SOCK_ERROR:
@@ -130,7 +136,8 @@ int main()
 					argv->count = i;
 					argv->port = pro->arduino_mac[j][0];
 					table[i].addr = *(addr_set+i);
-					table[i].connect_number = argv->port-'A'+1;
+					table[i].connect_number = (argv->port-'A')+1;//파일 넘버 1~7까지(port-'A'+1)
+					printf("table i = %d addr = %s connect_number = %d\n",i,table[i].addr,table[i].connect_number);
 					pthread_create(&pid[i],NULL,read_connection,(void*)argv);
 					count+= 1;
 					break;

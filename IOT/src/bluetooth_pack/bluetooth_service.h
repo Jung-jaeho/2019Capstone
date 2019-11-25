@@ -14,6 +14,4 @@
 int scan_bluetooth_addr(char **addrset);
 int read_bltooth(int fd, char* object,int size);
 int read_wait(int fd);
-
-
-
+int scan_bluetooth_reconnect(char **addrset);
