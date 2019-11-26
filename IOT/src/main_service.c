@@ -52,11 +52,6 @@ RE_CONNECTION:
 			close(s);
 		}
 		usleep(5000*1000);
-		connect_count++;
-		if(connect_count >100)
-		{
-			goto STATUS_ERROR;
-		}
 	}
 	table[p_count].tf=true;
 	if(status == 0)
@@ -76,6 +71,13 @@ RE_CONNECTION:
 			if(r_len != 0)
 			{
 				r_len = read_bltooth(s,buf,r_len);
+				if(r_len == -2)
+				{
+					printf("CONNECTION FAIL ADDR: %s %d\n",argv,p_count);
+					printf("TRUE : table[%d].tf == %d\n",p_count,table[p_count].tf);
+					table[p_count].tf = false;
+					printf("FALSE: table[%d].tf == %d\n",p_count,table[p_count].tf);
+				}
 				if(r_len == 0)
 					continue;
 				printf("Size : %d %s\n",r_len,buf);
