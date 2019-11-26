@@ -30,7 +30,7 @@ void* read_connection(void* ar)
 	int s,status=-1;
 	int connect_count = 0;
 	struct timeval tv;
-	tv.tv_sec = 20;
+	tv.tv_sec = 2;
 	tv.tv_usec = 0;
 RE_CONNECTION:
 	while(status < 0)

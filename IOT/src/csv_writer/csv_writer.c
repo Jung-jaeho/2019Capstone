@@ -4,7 +4,7 @@ int write_csv(char* value,int number,int count)
 	char file_name[150];
 	int fd;
 	sprintf(file_name,"%s%s%d_%d",FOLDER_NAME,FILE_NAME,number,count);
-	fd = open(file_name,O_WRONLY|O_CREAT|O_APPEND,0777);
+	fd = open(file_name,O_WRONLY|O_CREAT|O_APPEND,0666);
 	write(fd,value,strlen(value));
 	close(fd);
 	return 1;
@@ -23,6 +23,7 @@ int group_csv_file(int number)
 	for(i = 0,j=0 ; i < pro->arduino_count;i++)
 	{
 		printf("%d\n",i);
+		usleep(1000*2000);
 		if(table[i].connect_number == 0 || table[i].tf == false)
 		{
 			printf("number : %d\n",table[i].connect_number);
@@ -32,8 +33,7 @@ int group_csv_file(int number)
 		printf("%s\n",file_name[i]);
 		while(fd[j] <0)
 		{
-			printf("open file .... \n");
-			fd[j] = open(file_name[i],O_RDONLY|O_EXCL,0777);
+			fd[j] = open(file_name[i],O_RDONLY|O_EXCL,0666);
 		}
 		j++;
 	}
@@ -46,7 +46,7 @@ int group_csv_file(int number)
 	printf("now_count = %d\n",now_count);
 	while(sfd<0)
 	{
-		sfd = open(SEND_FILE_NAME,O_CREAT|O_EXCL|O_WRONLY,0777);
+		sfd = open(SEND_FILE_NAME,O_CREAT|O_EXCL|O_WRONLY,0666);
 		usleep(500);
 	}
 	for(i=0;i<now_count;i++)
