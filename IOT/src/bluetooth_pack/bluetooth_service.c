@@ -90,6 +90,7 @@ ERROR_EXIT:
 DONE:
 	bt_free(info);
 	hci_close_dev(dd);
+	return n;
 }
 int scan_bluetooth_reconnect(char **addrset)
 {

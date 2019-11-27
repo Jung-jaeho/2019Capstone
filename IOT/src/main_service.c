@@ -121,12 +121,17 @@ int main()
 	pthread_t pid[5];
 	char **addr_set = (char**)malloc(sizeof(char*)*7);
 	int i,count=0;
+	int length;
 	printf("Server : %s\n",pro->send_server);
 	printf("Sirial_Number : %s\n",pro->sirial_number);
 	memset(table,0,sizeof(table));
-	if(scan_bluetooth_addr(addr_set) < 0 )
+	while((length=scan_bluetooth_addr(addr_set) ) < pro->arduino_count)
 	{
-		printf("error \n");
+		printf("%d\n",length);
+		for(i = 0 ; i <length ;i++)
+		{
+			free(addr_set[i]);
+		}
 	}
 	for(i = 0; i<7;i++)
 	{
