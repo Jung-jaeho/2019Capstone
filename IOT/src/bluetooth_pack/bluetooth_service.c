@@ -70,18 +70,17 @@ int scan_bluetooth_addr(char **addrset)
 	memset(addrset,0,sizeof(char*)*7);
 	for(i = 0 ; i < num_rsp;i++)
 	{
+		int j;
 		ba2str(&(info+i)->bdaddr,addr);
-		if(hci_read_remote_name(dd,&(info+i)->bdaddr,sizeof(name),name,10000)<0)
+		for(j=0;j<pro->arduino_count;j++)
 		{
-			strcpy(name,"N/A");
+			if(strcmp(addr,pro->arduino_mac[j]+2) == 0)
+			{
+				addrset[n] = (char*)malloc(sizeof(char)*18);
+				strcpy(addrset[n++],addr);
+			}
+			printf("%s %s\n",addr,name);
 		}
-		if(strcmp(name,"HC-06") == 0)
-		{
-			addrset[n] = (char*)malloc(sizeof(char)*18);
-			strcpy(addrset[n],addr);
-			n++;
-		}
-		printf("%s %s\n",addr,name);
 	}
 	goto DONE;
 ERROR_EXIT:

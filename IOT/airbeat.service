@@ -1,0 +1,10 @@
+[Unit]
+Description=Air Beat Service
+
+[Service]
+ExecStart=/airbeat/run.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+Alias=airbeat.service
