@@ -1,3 +1,81 @@
 <resources>
-    <string name="app_name">JaehoServer</string>
+    <string name="app_name">AirPollutionMonitor</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- main menu -->
+    <string name="menu_register">장소등록</string>
+    <string name="menu_monitor">모니터링</string>
+    <string name="menu_statistic">통계분석</string>
+    <string name="menu_alarm">알람설정</string>
+    <string name="menu_notice">등급정보</string>
+    <string name="menu_info">대처방안</string>
+    <string name="menu_share">상태공유</string>
+    <string name="menu_settings">환경설정</string>
+
+    <!-- time prompt -->
+    <string name="prompt_time">현재 시간: </string>
+    <string name="prompt_update">업데이트 시간: </string>
+
+    <!-- detail prompt -->
+    <string name="prompt_tem">온도: </string>
+    <string name="prompt_hum">습도: </string>
+    <string name="prompt_co">일산화탄소(CO) : </string>
+    <string name="prompt_ch4">메테인(CH4) : </string>
+
+    <!-- unit -->
+    <string name="unit_tem"> ℃</string>
+    <string name="unit_hum"> g/m3</string>
+    <string name="unit_ppm"> ppm</string>
+
+    <!-- line chart menu -->
+    <string name="viewGithub">View on GitHub</string>
+    <string name="reportProblem">Problem Report</string>
+    <string name="viewWebsite">Developer Website</string>
+    <string name="actionSave">Save to Gallery</string>
+    <string name="animateX">Animate X</string>
+    <string name="animateY">Animate Y</string>
+    <string name="animateXY">Animate XY</string>
+
+    <string name="actionToggleValues">Toggle Values</string>
+    <string name="actionToggleYValues">Toggle Y-Values</string>
+    <string name="actionToggleXValues">Toggle X-Values</string>
+
+    <string name="actionToggleIcons">Toggle Icons</string>
+    <string name="actionToggleHighlight">Toggle Highlight</string>
+    <string name="actionTogglePinch">Toggle PinchZoom</string>
+    <string name="actionToggleAutoScale">Toggle Auto Scale</string>
+
+    <string name="actionToggleLineValues">Toggle Line Values</string>
+    <string name="actionToggleBarValues">Toggle Bar Values</string>
+    <string name="actionToggleBarBorders">Toggle Bar Borders</string>
+    <string name="actionToggleFilled">Toggle Filled</string>
+    <string name="actionToggleCircles">Toggle Circles</string>
+    <string name="actionToggleCandleShadow">Toggle Shadow Color</string>
+
+    <string name="actionToggleCubic">Toggle Cubic</string>
+    <string name="actionToggleStepped">Toggle Stepped</string>
+    <string name="actionToggleHorizontalCubic">Toggle Horizontal Cubic</string>
+
+    <string name="actionAddEntry">Add Entry</string>
+    <string name="actionFeedMultiple">Add Multiple</string>
+    <string name="actionRemoveEntry">Remove Entry</string>
+    <string name="actionAddDataSet">Add Data Set</string>
+    <string name="actionRemoveDataSet">Remove Data Set</string>
+    <string name="actionClearChart">Clear chart</string>
+
+    <string name="actionTogglePercent">Toggle Percent</string>
+    <string name="actionToggleMinAngles">Toggle Minimum Angles</string>
+    <string name="actionToggleHole">Toggle Hole</string>
+    <string name="actionToggleCurvedSlices">Toggle Curved Slices</string>
+    <string name="actionDrawCenterText">Draw Center Text</string>
+    <string name="actionToggleHighlightCircle">Toggle Highlight Circle</string>
+    <string name="actionToggleRotation">Toggle Rotation</string>
+    <string name="actionToggleSpin">Spin Animation</string>
+
+    <string name="dash">-</string>
+    <string name="scrollViewStart">START OF SCROLLVIEW</string>
+    <string name="scrollViewEnd">END OF SCROLLVIEW</string>
+
 </resources>

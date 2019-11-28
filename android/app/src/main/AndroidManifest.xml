@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="jaeho.jaehoserver">
+    package="ann.example.airpollutionmonitor">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -10,13 +11,25 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".Chart.StatisticActivity"></activity>
+        <activity android:name=".Chart.MonitorActivity" />
+        <activity android:name=".View.LoadingActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".View.AddLocationActivity"
+            android:theme="@style/PopUpTheme" />
+        <activity android:name=".View.InfoActivity" />
+        <activity android:name=".BaseActivity" />
+        <activity android:name=".View.SettingsActivity" />
+        <activity android:name=".View.NoticeActivity" />
+        <activity android:name=".View.MonitorTestActivity" />
+        <activity android:name=".View.RegisterActivity" />
+        <activity android:name=".MainActivity" />
     </application>
 
 </manifest>
