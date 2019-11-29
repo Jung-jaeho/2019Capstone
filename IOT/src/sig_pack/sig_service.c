@@ -16,7 +16,9 @@ void sig_time(int signo)
 	int status;
 	int signo_num = SIGALRM;
 	void (*signal_function)(int) = sig_time;
+	
 	number += 1;
+	
 	if(group_csv_file(number-1) < 0)
 	{
 		alarm(10);
