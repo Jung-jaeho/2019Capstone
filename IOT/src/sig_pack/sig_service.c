@@ -16,7 +16,14 @@ void sig_time(int signo)
 	int status;
 	int signo_num = SIGALRM;
 	void (*signal_function)(int) = sig_time;
-	group_csv_file(number++);
+	number += 1;
+	if(group_csv_file(number-1) < 0)
+	{
+		alarm(10);
+		number -= 1;
+		set_signal_setting(1,&signo_num,&signal_function);
+		return;
+	}
 	pid = fork();
 	if(pid == 0)
 	{
