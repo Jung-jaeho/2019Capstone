@@ -1,14 +1,11 @@
 package ann.example.airpollutionmonitor.View;
 
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.viewpager.widget.ViewPager;
 
 public class MeasuredViewPager extends ViewPager {

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "16951352620",
+    "firebase_url": "https://airbeat-3ca4b.firebaseio.com",
+    "project_id": "airbeat-3ca4b",
+    "storage_bucket": "airbeat-3ca4b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:16951352620:android:dfac7fe3e498bf21b92089",
+        "android_client_info": {
+          "package_name": "ann.example.airpollutionmonitor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "16951352620-odq7t8fh0d5gm7vi9gfoa6al644rc2nq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ann.example.airpollutionmonitor",
+            "certificate_hash": "bef16a4211408f89b45465d6b673d107fef1a71e"
+          }
+        },
+        {
+          "client_id": "16951352620-a7nfl0f56b4o0uaj5i8hq2i8e407pedo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6p0nnantg_XvanDzdrlXuly4w9kxvais"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "16951352620-a7nfl0f56b4o0uaj5i8hq2i8e407pedo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

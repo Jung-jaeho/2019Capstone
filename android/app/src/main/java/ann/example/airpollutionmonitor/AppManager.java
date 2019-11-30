@@ -7,16 +7,18 @@ import ann.example.airpollutionmonitor.Model.SensorData;
 
 public class AppManager {
     private static AppManager instance = null;
+
     private AppManager() {
     }
 
-    public static AppManager getInstance(){
-        if(instance == null)
+    public static AppManager getInstance() {
+        if (instance == null)
             instance = new AppManager();
         return instance;
     }
 
     public static final String[][] SERIALS = {{"sn100", "강의실 100"}, {"sn101", "강의실 101"}};
+
     public ArrayList<Location> getLocations() {
         return locations;
     }
@@ -28,6 +30,7 @@ public class AppManager {
     private ArrayList<Location> locations;
 
     public SensorData sensorData;
+
     public SensorData getSensorData() {
         return sensorData;
     }
@@ -36,9 +39,9 @@ public class AppManager {
         this.sensorData = sensorData;
     }
 
-
-
-
-
+    // 기준
+    public float maxCOLevel = 50f;
+    public float maxCH4Level = 500f;
 
 }
+

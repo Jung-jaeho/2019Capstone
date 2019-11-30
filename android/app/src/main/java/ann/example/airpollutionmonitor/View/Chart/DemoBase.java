@@ -1,4 +1,4 @@
-package ann.example.airpollutionmonitor.Chart;
+package ann.example.airpollutionmonitor.View.Chart;
 
 import android.Manifest;
 import android.content.pm.PackageManager;

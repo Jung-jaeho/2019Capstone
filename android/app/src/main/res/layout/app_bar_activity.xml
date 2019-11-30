@@ -6,7 +6,7 @@
     android:layout_alignParentTop="true"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:padding="20dp">
+    android:padding="15dp">
 
     <ImageView
         android:id="@+id/btn_back"
@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:text="메뉴명"
         android:textColor="@color/colorBlack"
-        android:textSize="21sp" />
+        android:textSize="18sp" />
 
 
 </LinearLayout>
