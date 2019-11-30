@@ -11,9 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Chart.StatisticActivity"></activity>
-        <activity android:name=".Chart.MonitorActivity" />
-        <activity android:name=".View.LoadingActivity">
+        <activity android:name="ann.example.airpollutionmonitor.View.Chart.StatisticActivity"></activity>
+        <activity android:name="ann.example.airpollutionmonitor.View.Chart.MonitorActivity" />
+        <activity android:name="ann.example.airpollutionmonitor.View.LoadingActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,15 +21,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".View.AddLocationActivity"
+            android:name="ann.example.airpollutionmonitor.View.AddLocationActivity"
             android:theme="@style/PopUpTheme" />
-        <activity android:name=".View.InfoActivity" />
-        <activity android:name=".BaseActivity" />
-        <activity android:name=".View.SettingsActivity" />
-        <activity android:name=".View.NoticeActivity" />
-        <activity android:name=".View.MonitorTestActivity" />
-        <activity android:name=".View.RegisterActivity" />
-        <activity android:name=".MainActivity" />
+        <activity android:name="ann.example.airpollutionmonitor.View.InfoActivity" />
+        <activity android:name="ann.example.airpollutionmonitor.BaseActivity" />
+        <activity android:name="ann.example.airpollutionmonitor.View.SettingsActivity" />
+        <activity android:name="ann.example.airpollutionmonitor.View.NoticeActivity" />
+        <activity android:name="ann.example.airpollutionmonitor.View.MonitorTestActivity" />
+        <activity android:name="ann.example.airpollutionmonitor.View.RegisterActivity" />
+        <activity android:name="ann.example.airpollutionmonitor.MainActivity" />
     </application>
 
 </manifest>

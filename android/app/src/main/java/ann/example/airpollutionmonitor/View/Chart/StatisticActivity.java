@@ -1,12 +1,15 @@
-package ann.example.airpollutionmonitor.Chart;
+package ann.example.airpollutionmonitor.View.Chart;
 
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
@@ -24,31 +27,126 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import ann.example.airpollutionmonitor.AppManager;
 import ann.example.airpollutionmonitor.BaseActivity;
-import ann.example.airpollutionmonitor.Chart.listviewitems.BarChartItem;
-import ann.example.airpollutionmonitor.Chart.listviewitems.ChartItem;
-import ann.example.airpollutionmonitor.Chart.listviewitems.PieChartItem;
+import ann.example.airpollutionmonitor.Controller.MonitorDataSource;
+import ann.example.airpollutionmonitor.Model.Location;
+import ann.example.airpollutionmonitor.Model.SensorData;
 import ann.example.airpollutionmonitor.R;
+import ann.example.airpollutionmonitor.View.Chart.ListViewItems.BarChartItem;
+import ann.example.airpollutionmonitor.View.Chart.ListViewItems.ChartItem;
+import ann.example.airpollutionmonitor.View.Chart.ListViewItems.LineChartItem;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class StatisticActivity extends BaseActivity implements OnChartValueSelectedListener {
+    private static final String TAG = "StatisticActivity";
+    private ArrayList<Location> locations = AppManager.getInstance().getLocations();
+    private String serial = locations.get(0).getSerialNumber();
 
+    private TextView locationTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_statistic);
 
+        initView();
+
+    }
+
+    private void initView() {
+        ImageView backBtn = findViewById(R.id.btn_back);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
+        // 상단 제목
+        TextView title = findViewById(R.id.title);
+        title.setText(R.string.menu_statistic);
+
+        // 장소명
+        locationTextView = findViewById(R.id.location);
+        locationTextView.setText(locations.get(0).getName());
+
+        // 여러 그래프 추가
         ListView lv = findViewById(R.id.listView1);
 
         ArrayList<ChartItem> list = new ArrayList<>();
-        list.add(new PieChartItem(generateDataPie(), getApplicationContext()));
+        //list.add(new PieChartItem(generateDataPie(), getApplicationContext()));
+        list.add(new LineChartItem(generateDataLine(1), getApplicationContext()));
         list.add(new BarChartItem(generateDataBar(1), getApplicationContext()));
 
         ChartDataAdapter cda = new ChartDataAdapter(getApplicationContext(), list);
         lv.setAdapter(cda);
+
+        getSensorData(getTodayDate(), getTodayDate());
+    }
+
+    private String getTodayDate(){
+        Date rightNow = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+        String dateString = formatter.format(rightNow);
+
+        Log.d(TAG, dateString);
+
+        return dateString;
+    }
+
+    private void getSensorData(String startDate, String endDate){
+        MonitorDataSource monitorDataSource = MonitorDataSource.getInstance();
+        monitorDataSource.getJsonByDate(serial, startDate, endDate)
+                .enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        // retrofit 통신이 성공했을 때
+                        String str = response.body();
+                        //Log.d(TAG, str);
+
+                        // 데이터 model 객체 생성
+                        try {
+                            JSONObject jsonObject = new JSONObject(str);
+                            JSONArray jsonArray = jsonObject.getJSONArray("data");
+                            JSONObject dataJsonObject = jsonArray.getJSONObject(0);
+                            //Log.d(TAG, jsonArray.toString());
+
+                            SensorData sensorData = new SensorData(dataJsonObject.getString("time_slot"), dataJsonObject.getDouble("TEM")
+                                    , dataJsonObject.getDouble("HUM"), dataJsonObject.getDouble("CO"), dataJsonObject.getDouble("CH4"));
+                            Log.d(TAG, sensorData.toString());
+                            /*
+                            // 현재 가져온 데이터 갱신
+                            setCurrentData(sensorData);
+
+                            // 그래프에 데이터 추가
+                            addEntry(spinner.getSelectedItemPosition(), sensorData);
+                            Log.d(TAG, "addSensorData");
+                            */
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        // retrofit 통신이 실패했을 때
+                        Log.d(TAG, "통신이 실패하였습니다.");
+                    }
+                });
     }
 
     /** adapter that supports 3 different item types */
@@ -84,6 +182,9 @@ public class StatisticActivity extends BaseActivity implements OnChartValueSelec
      * @return Line data
      */
     private LineData generateDataLine(int cnt) {
+
+        getTodayDate();
+       // getSensorData(getTodayDate(), getTodayDate());
 
         ArrayList<Entry> values1 = new ArrayList<>();
 
@@ -146,10 +247,9 @@ public class StatisticActivity extends BaseActivity implements OnChartValueSelec
      * @return Pie data
      */
     private PieData generateDataPie() {
-
         ArrayList<PieEntry> entries = new ArrayList<>();
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 2; i++) {
             entries.add(new PieEntry((float) ((Math.random() * 70) + 30), "Quarter " + (i+1)));
         }
 

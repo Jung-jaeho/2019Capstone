@@ -1,12 +1,14 @@
-package ann.example.airpollutionmonitor.Chart;
+package ann.example.airpollutionmonitor.View.Chart;
 
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -48,25 +50,22 @@ public class MonitorActivity extends BaseActivity implements OnChartValueSelecte
     private static final String TAG = "MonitorActivity";
     private ArrayList<Location> locations = AppManager.getInstance().getLocations();
     private String serial = locations.get(0).getSerialNumber();
-    private ArrayList<SensorData> currentDatas;
 
-    public static final int TYPE_CO = 0;
-    public static final int TYPE_CH4 = 1;
-    private int dataType = TYPE_CO;
-
+    private Spinner spinner;
     private LineChart chart;
     private TextView locationTextView, timerTextView, updateTextView,
             temTextView, humTextView, coTextView, ch4TextView;
     private Timer timer;
 
+    private Thread thread;
     private Handler mHandler = new Handler();
+
+    private int maxVisibleEntryCount = 9;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Full Screen Mode Setting
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_monitor);
 
         initView();
@@ -120,7 +119,7 @@ public class MonitorActivity extends BaseActivity implements OnChartValueSelecte
         // Y axis
         YAxis leftAxis = chart.getAxisLeft();
         leftAxis.setTextColor(Color.BLACK);
-        leftAxis.setAxisMaximum(100f);
+        leftAxis.setAxisMaximum(AppManager.getInstance().maxCOLevel);
         leftAxis.setAxisMinimum(0f);
         leftAxis.setDrawGridLines(true);
 
@@ -160,12 +159,37 @@ public class MonitorActivity extends BaseActivity implements OnChartValueSelecte
         MainTimerTask timerTask = new MainTimerTask();
         timer = new Timer();
         timer.schedule(timerTask, 500, 1000);
+
+        // Spinner
+        spinner = findViewById(R.id.spinner);
+        String[] str = getResources().getStringArray(R.array.spinnerArray);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.spinner_item, str);
+        adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Log.d("알림", spinner.getSelectedItem().toString() + "is selected");
+
+                //thread.interrupt();
+                chart.clearValues();
+                changeYAxis(position);
+
+                //getRealTimeData();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     private String getCurrentDate() {
         Date rightNow = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat(
-                "yyyy.MM.dd hh:mm:ss ");
+                "yyyy.MM.dd kk:mm:ss ");
         String dateString = formatter.format(rightNow);
         return dateString;
     }
@@ -183,68 +207,11 @@ public class MonitorActivity extends BaseActivity implements OnChartValueSelecte
         }
     }
 
-    // 실시간 데이터 안올때를 대비해서 만든 클래스
-    class AddEntryTask implements Runnable {
-        int from;
-        final int size = 1;
-
-        public AddEntryTask(int from) {
-            this.from = from;
-        }
-
-        @Override
-        public void run() {
-            MonitorDataSource monitorDataSource = MonitorDataSource.getInstance();
-            monitorDataSource.getJsonByIndex(serial, from, size)
-                    .enqueue(new Callback<String>() {
-                        @Override
-                        public void onResponse(Call<String> call, Response<String> response) {
-                            // retrofit 통신이 성공했을 때
-                            String str = response.body();
-                            Log.d(TAG, str);
-
-                            // 데이터 model 객체 생성
-                            try {
-                                JSONObject jsonObject = new JSONObject(str);
-                                JSONArray jsonArray = jsonObject.getJSONArray("data");
-                                JSONObject dataJsonObject = jsonArray.getJSONObject(0);
-                                //Log.d(TAG, jsonArray.toString());
-
-                                SensorData sensorData = new SensorData(dataJsonObject.getString("time_slot"), dataJsonObject.getDouble("TEM")
-                                        , dataJsonObject.getDouble("HUM"), dataJsonObject.getDouble("CO"), dataJsonObject.getDouble("CH4"));
-                                Log.d(TAG, sensorData.toString());
-
-                                // 그래프에 데이터 추가
-                                switch (dataType) {
-                                    case TYPE_CO:
-                                       //addEntry(sensorData.getCO());
-                                        break;
-                                    case TYPE_CH4:
-                                        break;
-                                    default:
-                                        break;
-                                }
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-
-                        @Override
-                        public void onFailure(Call<String> call, Throwable t) {
-                            // retrofit 통신이 실패했을 때
-                            Log.d(TAG, "통신이 실패하였습니다.");
-                        }
-                    });
-        }
-    }
-
-    private LineDataSet createSet() {
+    private LineDataSet createSet(int index) {
         // 그래프 변수 하나 설정
-        LineDataSet set = new LineDataSet(null, "일산화탄소(CO)");
+        LineDataSet set = new LineDataSet(null, getLabel(index));
         set.setAxisDependency(AxisDependency.LEFT);
-        set.setColor(ColorTemplate.getHoloBlue());
+        set.setColor(getLineColor(index));
         set.setCircleColor(Color.LTGRAY);
         set.setLineWidth(2f);
         set.setCircleRadius(4f);
@@ -257,7 +224,49 @@ public class MonitorActivity extends BaseActivity implements OnChartValueSelecte
         return set;
     }
 
-    private void addEntry(double yValue) {
+    private int getLineColor(int index) {
+        switch (index) {
+            case 0:
+                return ColorTemplate.getHoloBlue();
+            case 1:
+                return ColorTemplate.VORDIPLOM_COLORS[0];
+        }
+        return 0;
+    }
+
+    private String getLabel(int index) {
+        switch (index) {
+            case 0:
+                return getResources().getString(R.string.prompt_co);
+            case 1:
+                return getResources().getString(R.string.prompt_ch4);
+        }
+        return null;
+    }
+
+    private double getYValue(int index, SensorData sensorData){
+        switch (index){
+            case 0:
+                return sensorData.getCO();
+            case 1:
+                return sensorData.getCH4();
+        }
+        return 0;
+    }
+
+    private void changeYAxis(int index){
+        YAxis leftAxis = chart.getAxisLeft();
+        switch (index){
+            case 0:
+                leftAxis.setAxisMaximum(AppManager.getInstance().maxCOLevel);
+                break;
+            case 1:
+                leftAxis.setAxisMaximum(AppManager.getInstance().maxCH4Level);
+                break;
+        }
+
+    }
+    private void addEntry(int index, SensorData sensorData) {
         LineData data = chart.getData();
 
         if (data != null) {
@@ -265,20 +274,20 @@ public class MonitorActivity extends BaseActivity implements OnChartValueSelecte
             // set.addEntry(...); // can be called as well
 
             if (set == null) {
-                set = createSet();
+                set = createSet(index);
                 data.addDataSet(set);
             }
 
-
             //data.addEntry(new Entry(set.getEntryCount(), (float) (Math.random() * 40) + 30f), 0);
-            data.addEntry(new Entry(set.getEntryCount(), (float) yValue), 0);
+            float yValue= (float) getYValue(index, sensorData);
+            data.addEntry(new Entry(set.getEntryCount(), yValue), 0);
             data.notifyDataChanged();
 
             // let the chart know it's data has changed
             chart.notifyDataSetChanged();
 
             // limit the number of visible entries
-            chart.setVisibleXRangeMaximum(120);
+            chart.setVisibleXRangeMaximum(maxVisibleEntryCount);
             // chart.setVisibleYRange(30, AxisDependency.LEFT);
 
             // move to the latest entry
@@ -287,81 +296,78 @@ public class MonitorActivity extends BaseActivity implements OnChartValueSelecte
             // this automatically refreshes the chart (calls invalidate())
             // chart.moveViewTo(data.getXValCount()-7, 55f,
             // AxisDependency.LEFT);
+
+            showValue(true);
         }
     }
 
     private void setCurrentData(SensorData sensorData) {
-        temTextView.setText(getResources().getString(R.string.prompt_tem) + " "
+        temTextView.setText(getResources().getString(R.string.prompt_tem) + ": "
                 + sensorData.getTem() + getResources().getString(R.string.unit_tem));
-        humTextView.setText(getResources().getString(R.string.prompt_hum) + " "
+        humTextView.setText(getResources().getString(R.string.prompt_hum) + ": "
                 + sensorData.getHum() + getResources().getString(R.string.unit_hum));
-        coTextView.setText(getResources().getString(R.string.prompt_co) + " "
+        coTextView.setText(getResources().getString(R.string.prompt_co) + ": "
                 + sensorData.getCO() + getResources().getString(R.string.unit_ppm));
-        ch4TextView.setText(getResources().getString(R.string.prompt_ch4) + " "
+        ch4TextView.setText(getResources().getString(R.string.prompt_ch4) + ": "
                 + sensorData.getCH4() + getResources().getString(R.string.unit_ppm));
     }
 
     private void setUpdateTime(SensorData sensorData) {
         SimpleDateFormat formatter = new SimpleDateFormat(
-                "yyyy.MM.dd hh:mm:ss ");
+                "yyyy.MM.dd kk:mm:ss ");
         String dateString = formatter.format(sensorData.getDate());
         updateTextView.setText(getResources().getString(R.string.prompt_update) + " " + dateString);
     }
 
-    private Thread thread;
+    private void addSensorData(int from, int size){
+        MonitorDataSource monitorDataSource = MonitorDataSource.getInstance();
+        monitorDataSource.getJsonByIndex(serial, from, size)
+                .enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        // retrofit 통신이 성공했을 때
+                        String str = response.body();
+                        Log.d(TAG, str);
+
+                        // 데이터 model 객체 생성
+                        try {
+                            JSONObject jsonObject = new JSONObject(str);
+                            JSONArray jsonArray = jsonObject.getJSONArray("data");
+                            JSONObject dataJsonObject = jsonArray.getJSONObject(0);
+                            //Log.d(TAG, jsonArray.toString());
+
+                            SensorData sensorData = new SensorData(dataJsonObject.getString("time_slot"), dataJsonObject.getDouble("TEM")
+                                    , dataJsonObject.getDouble("HUM"), dataJsonObject.getDouble("CO"), dataJsonObject.getDouble("CH4"));
+                            Log.d(TAG, sensorData.toString());
+                            // 업데이트 시간 갱신
+                            setUpdateTime(sensorData);
+                            // 현재 가져온 데이터 갱신
+                            setCurrentData(sensorData);
+
+                            // 그래프에 데이터 추가
+                            addEntry(spinner.getSelectedItemPosition(), sensorData);
+                            Log.d(TAG, "addSensorData");
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        // retrofit 통신이 실패했을 때
+                        Log.d(TAG, "통신이 실패하였습니다.");
+                    }
+                });
+    }
 
     private Runnable getRunnable(final int from) {
         final int size = 1;   // 항상 최신 데이터를 가져와서 넣음
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                MonitorDataSource monitorDataSource = MonitorDataSource.getInstance();
-                monitorDataSource.getJsonByIndex(serial, from, size)
-                        .enqueue(new Callback<String>() {
-                            @Override
-                            public void onResponse(Call<String> call, Response<String> response) {
-                                // retrofit 통신이 성공했을 때
-                                String str = response.body();
-                                Log.d(TAG, str);
-
-                                // 데이터 model 객체 생성
-                                try {
-                                    JSONObject jsonObject = new JSONObject(str);
-                                    JSONArray jsonArray = jsonObject.getJSONArray("data");
-                                    JSONObject dataJsonObject = jsonArray.getJSONObject(0);
-                                    //Log.d(TAG, jsonArray.toString());
-
-                                    SensorData sensorData = new SensorData(dataJsonObject.getString("time_slot"), dataJsonObject.getDouble("TEM")
-                                            , dataJsonObject.getDouble("HUM"), dataJsonObject.getDouble("CO"), dataJsonObject.getDouble("CH4"));
-                                    Log.d(TAG, sensorData.toString());
-                                    // 업데이트 시간 갱신
-                                    setUpdateTime(sensorData);
-                                    // 현재 가져온 데이터 갱신
-                                    setCurrentData(sensorData);
-
-                                    // 그래프에 데이터 추가
-                                    switch (dataType) {
-                                        case TYPE_CO:
-                                            addEntry(sensorData.getCO());
-                                            break;
-                                        case TYPE_CH4:
-                                            break;
-                                        default:
-                                            break;
-                                    }
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<String> call, Throwable t) {
-                                // retrofit 통신이 실패했을 때
-                                Log.d(TAG, "통신이 실패하였습니다.");
-                            }
-                        });
-
+                addSensorData(from, size);
             }
         };
         return runnable;
@@ -376,11 +382,13 @@ public class MonitorActivity extends BaseActivity implements OnChartValueSelecte
             @Override
             public void run() {
                 // Don't generate garbage runnables inside the loop.
-                for (int i = 60; i >= 0; i--) {
+                while (true) {
+                    if(Thread.interrupted()) { break; }
+
                     //runOnUiThread(getRunnable(i));
-                    runOnUiThread(getRunnable(i));
+                    runOnUiThread(getRunnable(0));
                     try {
-                        Thread.sleep(2000);
+                        Thread.sleep(3000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -390,7 +398,7 @@ public class MonitorActivity extends BaseActivity implements OnChartValueSelecte
         thread.start();
     }
 
-    private void showValue(boolean showValue){
+    private void showValue(boolean showValue) {
         List<ILineDataSet> sets = chart.getData()
                 .getDataSets();
 
@@ -430,13 +438,13 @@ public class MonitorActivity extends BaseActivity implements OnChartValueSelecte
     @Override
     public void onValueSelected(Entry e, Highlight h) {
         Log.i("Entry selected", e.toString());
-        showValue(true);
+        //showValue(true);
     }
 
     @Override
     public void onNothingSelected() {
         Log.i("Nothing selected", "Nothing selected.");
-        showValue(false);
+        //showValue(false);
     }
 
 }

@@ -1,5 +1,5 @@
 
-package ann.example.airpollutionmonitor.Chart;
+package ann.example.airpollutionmonitor.View.Chart;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

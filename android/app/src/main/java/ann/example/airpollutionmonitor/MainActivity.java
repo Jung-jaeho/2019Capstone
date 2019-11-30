@@ -32,8 +32,8 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-import ann.example.airpollutionmonitor.Chart.MonitorActivity;
-import ann.example.airpollutionmonitor.Chart.StatisticActivity;
+import ann.example.airpollutionmonitor.View.Chart.MonitorActivity;
+import ann.example.airpollutionmonitor.View.Chart.StatisticActivity;
 import ann.example.airpollutionmonitor.Model.Location;
 import ann.example.airpollutionmonitor.View.HomeFragment;
 import ann.example.airpollutionmonitor.View.InfoActivity;
@@ -55,7 +55,7 @@ public class MainActivity extends BaseActivity
     ArrayList<Location> locations = AppManager.getInstance().getLocations();
 
     public static final String SHARED_PREFERENCE_TAG = "connected locations";
-    public static final int REGISTER_CODE=1;
+    public static final int REGISTER_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,11 +72,11 @@ public class MainActivity extends BaseActivity
         exception = findViewById(R.id.exception);
         info = findViewById(R.id.info);
 
-        if(locations.size()==0){
+        if (locations.size() == 0) {
             // 등록된 장소 없음 예외처리
             exception.setVisibility(View.VISIBLE);
             info.setVisibility(View.GONE);
-        } else{
+        } else {
             // 등록된 장소의 현재 공기 정보 제공
             exception.setVisibility(View.GONE);
             info.setVisibility(View.VISIBLE);
@@ -108,6 +108,7 @@ public class MainActivity extends BaseActivity
 
 
     }
+
     @Override
     protected void onStop() {
         super.onStop();
