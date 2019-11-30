@@ -9,7 +9,7 @@ properties_value* read_properties()
 	fd = open(FILE_PATH,O_RDONLY);
 	if(fd <0)
 	{
-		return -1;
+		exit(0);
 	}
 	char* object[100];
 	if(read(fd,value,1024)>0)

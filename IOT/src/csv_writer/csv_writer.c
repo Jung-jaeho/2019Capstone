@@ -22,8 +22,6 @@ int group_csv_file(int number)
 	memset(fd,-1,sizeof(fd));
 	for(i = 0,j=0 ; i < pro->arduino_count;i++)
 	{
-		printf("%d\n",i);
-		usleep(1000*2000);
 		if(table[i].connect_number == 0 || table[i].tf == false)
 		{
 			printf("number : %d\n",table[i].connect_number);
@@ -33,12 +31,16 @@ int group_csv_file(int number)
 		printf("%s\n",file_name[i]);
 		while(fd[j] <0)
 		{
+			if(table[i].connect_number == 0 || table[i].tf == false)
+			{
+				break;
+			}
 			fd[j] = open(file_name[i],O_RDONLY|O_EXCL,0666);
 		}
 		j++;
 	}
 	now_count = j;
-	if(fd[0]<0)
+	if(fd[0] < 0)
 	{
 		printf("fd none\n");
 		return -1;

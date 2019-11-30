@@ -21,4 +21,3 @@ typedef struct properties_value{
 extern struct bt_table table[7];
 extern struct properties_value *pro;
 extern unsigned int number;
-extern pid_t pid;

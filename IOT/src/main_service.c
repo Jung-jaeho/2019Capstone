@@ -7,16 +7,7 @@ struct bt_table table[7];
 struct properties_value *pro;
 void set_init()
 {
-	if(mkdir("/airbeat",0777)>=0)
-	{
-		mkdir("/airbeat/sensor_csv",0777);
-		pro = read_properties();
-	}
-	else
-	{
-		remove("/airbeat/sensor_csv/*");
-		pro = read_properties();
-	}
+	pro = read_properties();
 	return;
 }
 void* read_connection(void* ar)
@@ -80,7 +71,7 @@ RE_CONNECTION:
 				}
 				if(r_len == 0)
 					continue;
-				printf("Size : %d %s\n",r_len,buf);
+				//printf("Size : %d %s\n",r_len,buf);
 				buf[r_len-1] = '\0';
 				struct s_time *t= getTime();
 				r_len = sprintf(s_buf,"%c,%02d:%02d:%02d,%s\n",port,t->hour,t->min,t->sec,buf);
