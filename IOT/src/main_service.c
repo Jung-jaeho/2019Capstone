@@ -12,6 +12,8 @@ void set_init()
 }
 void* read_connection(void* ar)
 {
+
+    	sigset_t set;
 	struct sockaddr_rc *addr=(struct sockaddr_rc*)malloc(sizeof(struct sockaddr_rc));
 	memset(addr,0,sizeof(struct sockaddr_rc));
 	thread_argv *m_ar = (thread_argv*)ar;
@@ -23,6 +25,14 @@ void* read_connection(void* ar)
 	struct timeval tv;
 	tv.tv_sec = 2;
 	tv.tv_usec = 0;
+	sigemptyset(&set);
+    	sigaddset(&set,SIGALRM);
+    	sigaddset(&set,SIGCHLD);
+    	int sig_code;
+    	sig_code = pthread_sigmask(SIG_SETMASK,&set,NULL);
+	printf("%d \n",sig_code); 
+	if(sig_code != 0)
+		printf("ERROR: SIGMASK\n");
 RE_CONNECTION:
 	while(status < 0)
 	{ 	
@@ -113,7 +123,7 @@ int main()
 	char **addr_set = (char**)malloc(sizeof(char*)*7);
 	int i,count=0;
 	int length;
-    	sigset_t set;
+
 	printf("Server : %s\n",pro->send_server);
 	printf("Sirial_Number : %s\n",pro->sirial_number);
 	memset(table,0,sizeof(table));
@@ -125,13 +135,7 @@ int main()
 			free(addr_set[i]);
 		}
 	}
-	sigemptyset(&set);
-    	sigaddset(&set,SIGALRM);
-    	sigaddset(&set,SIGCHLD);
-    	int sig_code;
-    	sig_code = pthread_sigmask(SIG_SETMASK,&set,NULL);
-	if(sig_code != 0)
-		printf("ERROR: SIGMASK\n");
+
 	for(i = 0; i<7;i++)
 	{
 		int j;
@@ -156,15 +160,13 @@ int main()
 			}
 		}	
 	}
-	alarm(20);
 	int signo[2] = {SIGALRM,SIGCHLD};
 	void (*signal_function[2])(int) = {sig_time,sig_child};
 	set_signal_setting(2,signo,signal_function);
+	alarm(30);
 	for(i = 0 ; i <count;i++)
 	{
 		pthread_join(pid[i],NULL);
 	}
-	sig_time(SIGCHLD);
-	sig_child(SIGCHLD);
 	printf("Finish\n");
 }

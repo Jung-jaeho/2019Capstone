@@ -1,5 +1,5 @@
 #include"sig_service.h"
-pid_t pid;
+pid_t pid=0;
 void set_signal_setting(int sig_count,int *signo,void (**signal_function)(int))
 {
 	int i;
@@ -16,9 +16,8 @@ void sig_time(int signo)
 	int status;
 	int signo_num = SIGALRM;
 	void (*signal_function)(int) = sig_time;
-	
+	waitpid(pid,&status,0);
 	number += 1;
-	
 	if(group_csv_file(number-1) < 0)
 	{
 		alarm(10);
@@ -40,16 +39,15 @@ void sig_time(int signo)
 	}
 	printf("pid get: %d\n",pid);
 	set_signal_setting(1,&signo_num,&signal_function);
-	alarm(10);
+	alarm(30);
 }
 void sig_child(int signo)
 {
 	int signo_num = SIGCHLD;
 	void (*signal_function)(int) = sig_child;
 	int status;
+	waitpid(pid,&status,0);
 	set_signal_setting(1,&signo_num,&signal_function);
 	remove(SEND_FILE_NAME);
-
-	waitpid(pid,&status,0);
 	printf("pid close %d\n",pid);	
 }
