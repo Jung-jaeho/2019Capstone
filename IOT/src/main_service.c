@@ -113,6 +113,7 @@ int main()
 	char **addr_set = (char**)malloc(sizeof(char*)*7);
 	int i,count=0;
 	int length;
+    	sigset_t set;
 	printf("Server : %s\n",pro->send_server);
 	printf("Sirial_Number : %s\n",pro->sirial_number);
 	memset(table,0,sizeof(table));
@@ -124,6 +125,13 @@ int main()
 			free(addr_set[i]);
 		}
 	}
+	sigemptyset(&set);
+    	sigaddset(&set,SIGALRM);
+    	sigaddset(&set,SIGCHLD);
+    	int sig_code;
+    	sig_code = pthread_sigmask(SIG_SETMASK,&set,NULL);
+	if(sig_code != 0)
+		printf("ERROR: SIGMASK\n");
 	for(i = 0; i<7;i++)
 	{
 		int j;
