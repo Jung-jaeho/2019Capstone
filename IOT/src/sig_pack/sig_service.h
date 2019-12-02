@@ -9,3 +9,4 @@
 void set_signal_setting(int sig_count,int *signo,void (**signal_function)(int));
 void sig_time(int signo);
 void sig_child(int signo);
+void sig_server(int signo);

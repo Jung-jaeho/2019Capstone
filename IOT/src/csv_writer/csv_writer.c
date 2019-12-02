@@ -16,7 +16,7 @@ int write_csv_to_fd(int fd, char* value,int len)
 }
 int group_csv_file(int number)
 {
-	int fd[7],sfd=-1,i,j,now_count,r_len;
+	int fd[7],sfd=-1,i,j,now_count,r_len,count=0;
 	char file_name[7][150];
 	char object[1024];
 	memset(fd,-1,sizeof(fd));
@@ -49,7 +49,11 @@ int group_csv_file(int number)
 	while(sfd<0)
 	{
 		sfd = open(SEND_FILE_NAME,O_CREAT|O_EXCL|O_WRONLY,0666);
-		usleep(500);
+		usleep(500*1000);
+		if(count++ > 100){
+			printf("File open Fail : Send_File\n");
+			return -1;
+		}
 	}
 	for(i=0;i<now_count;i++)
 	{

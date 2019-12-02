@@ -123,7 +123,6 @@ int main()
 	char **addr_set = (char**)malloc(sizeof(char*)*7);
 	int i,count=0;
 	int length;
-
 	printf("Server : %s\n",pro->send_server);
 	printf("Sirial_Number : %s\n",pro->sirial_number);
 	memset(table,0,sizeof(table));
@@ -163,7 +162,7 @@ int main()
 	int signo[2] = {SIGALRM,SIGCHLD};
 	void (*signal_function[2])(int) = {sig_time,sig_child};
 	set_signal_setting(2,signo,signal_function);
-	alarm(30);
+	alarm(15);
 	for(i = 0 ; i <count;i++)
 	{
 		pthread_join(pid[i],NULL);
