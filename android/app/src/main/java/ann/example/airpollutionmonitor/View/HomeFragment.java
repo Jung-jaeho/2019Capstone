@@ -38,7 +38,8 @@ public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
 
     private MonitorDataSource monitorDataSource;
-    FragmentPagerAdapter adapterViewPager;
+    private ImagePagerAdapter adapterViewPager;
+    private ListViewAdapter listViewAdapter;
     Location location;
     ListView listView;
     ViewPager vpPager;
@@ -71,6 +72,16 @@ public class HomeFragment extends Fragment {
         listView = view.findViewById(R.id.details);
         setCurrentSensorData(location.getSerialNumber());
 
+        // 리스트뷰에 데이터 적용
+        listViewAdapter = new ListViewAdapter();
+        listView.setAdapter(listViewAdapter);
+        // 아이콘 이미지 변경
+
+        adapterViewPager = new ImagePagerAdapter(getChildFragmentManager(),
+                FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        vpPager.setAdapter(adapterViewPager);
+
+
         return view;
     }
 
@@ -96,14 +107,8 @@ public class HomeFragment extends Fragment {
                                     , dataJsonObject.getDouble("HUM"), dataJsonObject.getDouble("CO"), dataJsonObject.getDouble("CH4"));
                             Log.d(TAG, sensorData.toString());
                             AppManager.getInstance().setSensorData(sensorData);
-
-                            // 리스트뷰에 데이터 적용
-                            listView.setAdapter(new ListViewAdapter(sensorData));
-                            // 아이콘 이미지 변경
-                            adapterViewPager = new ImagePagerAdapter(getChildFragmentManager(),
-                                    FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT, sensorData);
-                            vpPager.setAdapter(adapterViewPager);
-
+                            adapterViewPager.setSensorData(sensorData);
+                            listViewAdapter.setData(sensorData);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -121,13 +126,14 @@ public class HomeFragment extends Fragment {
 
 
     public class ListViewAdapter extends BaseAdapter {
-        SensorData data;
+        private SensorData data = new SensorData("", 0, 0, 0, 0);
         ImageView icon;
         TextView value;
         TextView type;
 
-        public ListViewAdapter(SensorData data) {
+        public void setData(SensorData data) {
             this.data = data;
+            notifyDataSetChanged();
         }
 
         @Override
@@ -148,14 +154,13 @@ public class HomeFragment extends Fragment {
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
             final Context context = viewGroup.getContext();
+            //TODO 원래 viewHodler parrtern을 써야함 여기서
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            view = inflater.inflate(R.layout.item_detail, viewGroup, false);
+            icon = view.findViewById(R.id.icon);
+            value = view.findViewById(R.id.type);
+            type = view.findViewById(R.id.value);
 
-            if (view == null) {
-                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                view = inflater.inflate(R.layout.item_detail, viewGroup, false);
-                icon = view.findViewById(R.id.icon);
-                value = view.findViewById(R.id.type);
-                type = view.findViewById(R.id.value);
-            }
             switch (i) {
                 case 0:
                     icon.setVisibility(View.INVISIBLE);
@@ -180,23 +185,25 @@ public class HomeFragment extends Fragment {
 
             return view;
         }
-
     }
 
     public class ImagePagerAdapter extends FragmentPagerAdapter {
         // 데이터 받아 오면 수정해야함
         private int NUM_ITEMS = 2;
-        private SensorData sensorData;
+        private SensorData sensorData = new SensorData("", 0, 0, 0, 0);
         private static final int DEFAULT_LEVEL = 1;
         private ArrayList<Fragment> fragmentArrayList = new ArrayList();
 
-        public ImagePagerAdapter(@NonNull FragmentManager fm, int behavior, SensorData sensorData) {
+        public ImagePagerAdapter(@NonNull FragmentManager fm, int behavior) {
             super(fm, behavior);
             fragmentArrayList.add(IconFragment.newInstance("일산화탄소(CO)", DEFAULT_LEVEL));
             fragmentArrayList.add(IconFragment.newInstance("메테인(CH4)", DEFAULT_LEVEL));
-            this.sensorData = sensorData;
         }
 
+        public void setSensorData(SensorData data) {
+            this.sensorData = data;
+            notifyDataSetChanged();
+        }
 
         @NonNull
         @Override
@@ -205,6 +212,7 @@ public class HomeFragment extends Fragment {
             switch (position) {
                 case 0:
                     level = getCOLevel(sensorData.getCO());
+
                     AppManager.getInstance().getMainActivity().setBackGroundColor(level); // 바탕색 변경
                     return fragmentArrayList.get(0);
                 case 1:
@@ -213,6 +221,7 @@ public class HomeFragment extends Fragment {
                     return fragmentArrayList.get(1);
                 default:
                     return null;
+
             }
         }
 

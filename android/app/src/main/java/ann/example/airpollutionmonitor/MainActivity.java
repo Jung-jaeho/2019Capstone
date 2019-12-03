@@ -141,16 +141,22 @@ public class MainActivity extends BaseActivity
         switch (level) {
             case IconFragment.level1:
                 layout.setBackgroundColor(getResources().getColor(R.color.colorLevel1));
+                break;
             case IconFragment.level2:
                 layout.setBackgroundColor(getResources().getColor(R.color.colorLevel2));
+                break;
             case IconFragment.level3:
                 layout.setBackgroundColor(getResources().getColor(R.color.colorLevel3));
+                break;
             case IconFragment.level4:
                 layout.setBackgroundColor(getResources().getColor(R.color.colorLevel4));
+                break;
             case IconFragment.level5:
                 layout.setBackgroundColor(getResources().getColor(R.color.colorLevel5));
+                break;
             case IconFragment.level6:
                 layout.setBackgroundColor(getResources().getColor(R.color.colorLevel6));
+                break;
         }
     }
 
