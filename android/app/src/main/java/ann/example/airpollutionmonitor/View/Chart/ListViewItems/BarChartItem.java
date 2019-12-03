@@ -63,31 +63,8 @@ public class BarChartItem extends ChartItem implements OnChartGestureListener, O
             holder = (ViewHolder) convertView.getTag();
         }
 
-        /*
-        // apply styling
-        holder.chart.getDescription().setEnabled(false);
-        holder.chart.setDrawGridBackground(false);
-        holder.chart.setDrawBarShadow(false);
-
-        XAxis xAxis = holder.chart.getXAxis();
-        xAxis.setPosition(XAxisPosition.BOTTOM);
-        xAxis.setDrawGridLines(false);
-        xAxis.setDrawAxisLine(true);
-
-        YAxis leftAxis = holder.chart.getAxisLeft();
-        leftAxis.setLabelCount(5, false);
-        leftAxis.setSpaceTop(20f);
-        leftAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
-
-        YAxis rightAxis = holder.chart.getAxisRight();
-        rightAxis.setLabelCount(5, false);
-        rightAxis.setSpaceTop(20f);
-        rightAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
-
-         */
-
         // setting spinner
-        String[] str = c.getResources().getStringArray(R.array.chartArray);
+        String[] str = c.getResources().getStringArray(R.array.barChartArray);
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(c, R.layout.spinner_item, str);
         adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         holder.spinner.setAdapter(adapter);
@@ -99,9 +76,7 @@ public class BarChartItem extends ChartItem implements OnChartGestureListener, O
 
         // scaling can now only be done on x- and y-axis separately
         holder.chart.setPinchZoom(false);
-
         holder.chart.setDrawBarShadow(false);
-
         holder.chart.setDrawGridBackground(false);
 
         // create a custom MarkerView (extend MarkerView) and specify the layout
@@ -153,7 +128,7 @@ public class BarChartItem extends ChartItem implements OnChartGestureListener, O
         float barWidth = 0.2f; // x4 DataSet
         // (0.2 + 0.03) * 4 + 0.08 = 1.00 -> interval per "group"
 
-        int groupCount =  1;
+        int groupCount =  6;
         int startYear = 1980;
         int endYear = startYear + groupCount;
 
@@ -189,13 +164,13 @@ public class BarChartItem extends ChartItem implements OnChartGestureListener, O
 
         } else {
             // create 4 DataSets
-            set1 = new BarDataSet(values1, "Company A");
+            set1 = new BarDataSet(values1, "CO");
             set1.setColor(Color.rgb(104, 241, 175));
-            set2 = new BarDataSet(values2, "Company B");
+            set2 = new BarDataSet(values2, "CH4");
             set2.setColor(Color.rgb(164, 228, 251));
-            set3 = new BarDataSet(values3, "Company C");
+            set3 = new BarDataSet(values3, "TEM");
             set3.setColor(Color.rgb(242, 247, 158));
-            set4 = new BarDataSet(values4, "Company D");
+            set4 = new BarDataSet(values4, "HUM");
             set4.setColor(Color.rgb(255, 102, 0));
 
             BarData data = new BarData(set1, set2, set3, set4);

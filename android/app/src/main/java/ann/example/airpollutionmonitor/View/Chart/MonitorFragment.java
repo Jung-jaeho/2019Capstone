@@ -38,7 +38,6 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -79,7 +78,7 @@ public class MonitorFragment extends Fragment implements OnChartValueSelectedLis
         super.onCreate(savedInstanceState);
         Bundle bundle = getArguments();
         Location location = (Location) bundle.getSerializable("location");
-        serial = location.getName();
+        serial = location.getSerialNumber();
     }
 
     @Nullable
@@ -104,12 +103,12 @@ public class MonitorFragment extends Fragment implements OnChartValueSelectedLis
 
         // enable scaling and dragging
         chart.setDragEnabled(true);
-        chart.setScaleEnabled(false);
+        chart.setScaleEnabled(true);
         chart.setDrawGridBackground(true);
 
         // if disabled, scaling can be done on x- and y-axis separately
         //chart.setPinchZoom(true);
-        chart.setAutoScaleMinMaxEnabled(true);  // y축 자동 보정
+        chart.setAutoScaleMinMaxEnabled(false);  // y축 자동 보정
 
         LineData data = new LineData();
         data.setValueTextColor(Color.BLACK);
@@ -141,7 +140,6 @@ public class MonitorFragment extends Fragment implements OnChartValueSelectedLis
         rightAxis.setEnabled(false);
 
         getRealTimeData();  // 실시간 데이터 받아오기
-
     }
 
     private void initView(View view) {
@@ -170,8 +168,9 @@ public class MonitorFragment extends Fragment implements OnChartValueSelectedLis
                 Log.d(TAG, spinner.getSelectedItem().toString() + "is selected");
 
                 chart.clearValues();
-                chart.clearAllViewportJobs();
                 setLimitLine(position);
+                //chart.clearAllViewportJobs();
+
                 //chart.resetViewPortOffsets();
 
                 //getRealTimeData();
@@ -218,7 +217,7 @@ public class MonitorFragment extends Fragment implements OnChartValueSelectedLis
         set.setHighLightColor(Color.rgb(244, 117, 117));
         set.setValueTextColor(Color.BLACK);
         set.setValueTextSize(9f);
-        set.setDrawValues(false);
+        set.setDrawValues(true);
         return set;
     }
 
@@ -330,8 +329,6 @@ public class MonitorFragment extends Fragment implements OnChartValueSelectedLis
             // move to the latest entry
             chart.moveViewToX(data.getEntryCount());
 
-
-            showValue(true);
         }
     }
 
@@ -422,32 +419,21 @@ public class MonitorFragment extends Fragment implements OnChartValueSelectedLis
                 while (true) {
                     if(Thread.interrupted()) { break; }
 
-                    getActivity().runOnUiThread(getRunnable(i));
-                    i++;
-                    //runOnUiThread(getRunnable(0));
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    if(getActivity() != null) {
+                        //getActivity().runOnUiThread(getRunnable(i));
+                        //i++;
+                        getActivity().runOnUiThread(getRunnable(0));
+                        try {
+                            Thread.sleep(2000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
         });
         thread.start();
     }
-
-    private void showValue(boolean showValue) {
-        List<ILineDataSet> sets = chart.getData()
-                .getDataSets();
-
-        for (ILineDataSet iSet : sets) {
-            LineDataSet set = (LineDataSet) iSet;
-            set.setDrawValues(showValue);
-        }
-
-        chart.invalidate();
-    }
-
 
     @Override
     public void onPause() {
@@ -456,6 +442,13 @@ public class MonitorFragment extends Fragment implements OnChartValueSelectedLis
         if (thread != null) {
             thread.interrupt();
         }
+        //timer.cancel();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        timer.cancel();
     }
 
     @Override

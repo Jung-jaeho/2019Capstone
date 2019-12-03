@@ -13,4 +13,9 @@
         <item> CH4 </item>
     </string-array>
 
+    <string-array name="barChartArray">
+        <item> Max </item>
+        <item> Avg </item>
+    </string-array>
+
 </resources>

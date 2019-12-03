@@ -52,7 +52,7 @@ public class StatisticFragment extends Fragment {
 
     ArrayList<SensorData> dailySensorData, weeklySensorData;
 
-    public static StatisticFragment newInstance(Location location){
+    public static StatisticFragment newInstance(Location location) {
         StatisticFragment fragment = new StatisticFragment();
         Bundle args = new Bundle();
         args.putSerializable("location", location);
@@ -65,7 +65,7 @@ public class StatisticFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Bundle bundle = getArguments();
         Location location = (Location) bundle.getSerializable("location");
-        serial = location.getName();
+        serial = location.getSerialNumber();
     }
 
     @Nullable
@@ -76,7 +76,7 @@ public class StatisticFragment extends Fragment {
         return view;
     }
 
-    public void initView(View view){
+    public void initView(View view) {
         // 여러 그래프 추가
         ListView lv = view.findViewById(R.id.listView1);
 
@@ -87,21 +87,21 @@ public class StatisticFragment extends Fragment {
         ChartDataAdapter cda = new ChartDataAdapter(getContext(), list);
         lv.setAdapter(cda);
 
-        //getSensorData(getTodayDate(), getTodayDate());
+        getSensorData(getTodayDate(), getTodayDate());
     }
 
-    private String getTodayDate(){
+    private String getTodayDate() {
         Date rightNow = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
         String dateString = formatter.format(rightNow);
 
-        Log.d(TAG, dateString);
+        //Log.d(TAG, dateString);
 
         return dateString;
     }
 
 
-    private void getSensorData(String startDate, String endDate){
+    private void getSensorData(String startDate, String endDate) {
         MonitorDataSource monitorDataSource = MonitorDataSource.getInstance();
         monitorDataSource.getJsonByDate(serial, startDate, endDate)
                 .enqueue(new Callback<String>() {
@@ -109,7 +109,7 @@ public class StatisticFragment extends Fragment {
                     public void onResponse(Call<String> call, Response<String> response) {
                         // retrofit 통신이 성공했을 때
                         String str = response.body();
-                        //Log.d(TAG, str);
+                        Log.d(TAG, str);
 
                         // 데이터 model 객체 생성
                         try {
@@ -141,7 +141,9 @@ public class StatisticFragment extends Fragment {
                 });
     }
 
-    /** adapter that supports 3 different item types */
+    /**
+     * adapter that supports 3 different item types
+     */
     private class ChartDataAdapter extends ArrayAdapter<ChartItem> {
 
         ChartDataAdapter(Context context, List<ChartItem> objects) {
@@ -170,7 +172,7 @@ public class StatisticFragment extends Fragment {
 
     private LineData generateDataLine() {
 
-        getTodayDate();
+        //getTodayDate();
         // getSensorData(getTodayDate(), getTodayDate());
 
         ArrayList<Entry> values1 = new ArrayList<>();
@@ -239,7 +241,7 @@ public class StatisticFragment extends Fragment {
         ArrayList<PieEntry> entries = new ArrayList<>();
 
         for (int i = 0; i < 2; i++) {
-            entries.add(new PieEntry((float) ((Math.random() * 70) + 30), "Quarter " + (i+1)));
+            entries.add(new PieEntry((float) ((Math.random() * 70) + 30), "Quarter " + (i + 1)));
         }
 
         PieDataSet d = new PieDataSet(entries, "");
