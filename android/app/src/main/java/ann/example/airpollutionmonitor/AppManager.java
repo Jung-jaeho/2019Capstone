@@ -17,6 +17,16 @@ public class AppManager {
         return instance;
     }
 
+    public MainActivity mainActivity;
+
+    public MainActivity getMainActivity() {
+        return mainActivity;
+    }
+
+    public void setMainActivity(MainActivity mainActivity) {
+        this.mainActivity = mainActivity;
+    }
+
     public static final String[][] SERIALS = {{"sn100", "강의실 100"}, {"sn101", "강의실 101"}};
 
     public ArrayList<Location> getLocations() {
@@ -41,7 +51,9 @@ public class AppManager {
 
     // 기준
     public float maxCOLevel = 50f;
+    public float COUpperLimit = 9f;
     public float maxCH4Level = 500f;
+    public float CH4UpperLimit = 180f;
 
 }
 

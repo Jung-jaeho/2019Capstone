@@ -1,8 +1,15 @@
 <resources>
-    <string name="app_name">AirPollutionMonitor</string>
+    <string name="app_name">Airbeat</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!--Firebase-->
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <!-- [START fcm_default_icon_string] -->
+    <string name="default_notification_channel_name" translatable="true">Weather</string>
+    <string name="msg_token_fmt" translatable="false">InstanceID Token: %s</string>
+    <string name="fcm_message">FCM Message</string>
 
     <!-- main menu -->
     <string name="menu_register">장소등록</string>

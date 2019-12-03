@@ -8,9 +8,19 @@
     <color name="colorSubYellow">#EFDC05</color>
     <color name="colorSubPink">#E53A40</color>
 
+    <color name="colorWhite">#FFF</color>
     <color name="colorDarkGray">#808080</color>
     <color name="colorRed">#FF0000</color>
     <color name="colorBlue">#0000FF</color>
     <color name="colorBlack">#111111</color>
+
+
+    <color name="colorLevel1">#1B76CF</color>
+    <color name="colorLevel2">#00ACC2</color>
+    <color name="colorLevel3">#398E3D</color>
+    <color name="colorLevel4">#FB8C00</color>
+    <color name="colorLevel5">#E04E13</color>
+    <color name="colorLevel6">#D42E30</color>
+
 
 </resources>

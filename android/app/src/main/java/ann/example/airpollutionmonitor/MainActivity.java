@@ -24,7 +24,11 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -32,14 +36,12 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
+import ann.example.airpollutionmonitor.Model.Location;
 import ann.example.airpollutionmonitor.View.Chart.MonitorActivity;
 import ann.example.airpollutionmonitor.View.Chart.StatisticActivity;
-import ann.example.airpollutionmonitor.Model.Location;
 import ann.example.airpollutionmonitor.View.HomeFragment;
-import ann.example.airpollutionmonitor.View.InfoActivity;
-import ann.example.airpollutionmonitor.View.NoticeActivity;
+import ann.example.airpollutionmonitor.View.IconFragment;
 import ann.example.airpollutionmonitor.View.RegisterActivity;
-import ann.example.airpollutionmonitor.View.SettingsActivity;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -48,6 +50,7 @@ public class MainActivity extends BaseActivity
     BackPressCloseHandler backPressCloseHandler;
     FragmentPagerAdapter adapterViewPager;
     TextView placeName;
+    LinearLayout layout;
 
     RelativeLayout exception;
     LinearLayout info;
@@ -62,13 +65,38 @@ public class MainActivity extends BaseActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        AppManager.getInstance().setMainActivity(this);
         backPressCloseHandler = new BackPressCloseHandler(this);
 
         initNavigationMenu();
         initHome();
+
+        registerPushToken();
+    }
+
+    private void registerPushToken() {
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+
+                        // Log and toast
+                        String msg = getString(R.string.msg_token_fmt, token);
+                        Log.d(TAG, msg);
+                        //Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void initHome() {
+        layout = findViewById(R.id.layout);
         exception = findViewById(R.id.exception);
         info = findViewById(R.id.info);
 
@@ -107,6 +135,23 @@ public class MainActivity extends BaseActivity
         }
 
 
+    }
+
+    public void setBackGroundColor(int level) {
+        switch (level) {
+            case IconFragment.level1:
+                layout.setBackgroundColor(getResources().getColor(R.color.colorLevel1));
+            case IconFragment.level2:
+                layout.setBackgroundColor(getResources().getColor(R.color.colorLevel2));
+            case IconFragment.level3:
+                layout.setBackgroundColor(getResources().getColor(R.color.colorLevel3));
+            case IconFragment.level4:
+                layout.setBackgroundColor(getResources().getColor(R.color.colorLevel4));
+            case IconFragment.level5:
+                layout.setBackgroundColor(getResources().getColor(R.color.colorLevel5));
+            case IconFragment.level6:
+                layout.setBackgroundColor(getResources().getColor(R.color.colorLevel6));
+        }
     }
 
     @Override
@@ -211,6 +256,7 @@ public class MainActivity extends BaseActivity
                 intent = new Intent(getApplicationContext(), StatisticActivity.class);
                 startActivity(intent);
                 break;
+                /*
             case R.id.nav_notice:
                 intent = new Intent(getApplicationContext(), NoticeActivity.class);
                 startActivity(intent);
@@ -227,6 +273,7 @@ public class MainActivity extends BaseActivity
                 intent = new Intent(getApplicationContext(), SettingsActivity.class);
                 startActivity(intent);
                 break;
+                 */
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

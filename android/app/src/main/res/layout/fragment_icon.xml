@@ -23,6 +23,7 @@
         android:layout_marginTop="10dp"
         android:layout_weight="0"
         android:text="일산화탄소"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:textColor="@color/colorWhite"/>
 
 </ann.example.airpollutionmonitor.View.SquareLinearLayout>
