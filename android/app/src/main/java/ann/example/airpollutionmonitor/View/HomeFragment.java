@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -40,6 +41,7 @@ public class HomeFragment extends Fragment {
     private MonitorDataSource monitorDataSource;
     private ImagePagerAdapter adapterViewPager;
     private ListViewAdapter listViewAdapter;
+    private LinearLayout outer;
     Location location;
     ListView listView;
     ViewPager vpPager;
@@ -65,7 +67,7 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
         vpPager = view.findViewById(R.id.vpPager_home);
-
+        outer = view.findViewById(R.id.outer);
         CircleIndicator indicator = view.findViewById(R.id.indicator);
         indicator.setViewPager(vpPager);
 
@@ -80,6 +82,22 @@ public class HomeFragment extends Fragment {
         adapterViewPager = new ImagePagerAdapter(getChildFragmentManager(),
                 FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         vpPager.setAdapter(adapterViewPager);
+        vpPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                adapterViewPager.setBackgroundColor(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
 
         return view;
@@ -192,7 +210,8 @@ public class HomeFragment extends Fragment {
         private int NUM_ITEMS = 2;
         private SensorData sensorData = new SensorData("", 0, 0, 0, 0);
         private static final int DEFAULT_LEVEL = 1;
-        private ArrayList<Fragment> fragmentArrayList = new ArrayList();
+        private ArrayList<IconFragment> fragmentArrayList = new ArrayList();
+        private int level = 0;
 
         public ImagePagerAdapter(@NonNull FragmentManager fm, int behavior) {
             super(fm, behavior);
@@ -202,22 +221,37 @@ public class HomeFragment extends Fragment {
 
         public void setSensorData(SensorData data) {
             this.sensorData = data;
+            for (int i = 0; i < fragmentArrayList.size(); i++) {
+                switch (i) {
+                    case 0:
+                        fragmentArrayList.get(i).setLevel(getCOLevel(sensorData.getCO()));
+                        break;
+                    case 1:
+                        fragmentArrayList.get(i).setLevel(getCH4Level(sensorData.getCH4()));
+                        break;
+                }
+            }
             notifyDataSetChanged();
+        }
+
+        public void setBackgroundColor(int pos) {
+            switch (pos) {
+                case 0:
+                    AppManager.getInstance().getMainActivity().setBackGroundColor(getCOLevel(sensorData.getCO())); // 바탕색 변경
+                    break;
+                case 1:
+                    AppManager.getInstance().getMainActivity().setBackGroundColor(getCOLevel(sensorData.getCH4())); // 바탕색 변경
+                    break;
+            }
         }
 
         @NonNull
         @Override
         public Fragment getItem(int position) {
-            int level = 0;
             switch (position) {
                 case 0:
-                    level = getCOLevel(sensorData.getCO());
-
-                    AppManager.getInstance().getMainActivity().setBackGroundColor(level); // 바탕색 변경
                     return fragmentArrayList.get(0);
                 case 1:
-                    level = getCH4Level(sensorData.getCH4());
-                    AppManager.getInstance().getMainActivity().setBackGroundColor(level); // 바탕색 변경
                     return fragmentArrayList.get(1);
                 default:
                     return null;

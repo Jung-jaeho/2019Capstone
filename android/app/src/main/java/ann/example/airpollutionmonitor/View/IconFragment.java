@@ -25,6 +25,7 @@ public class IconFragment extends Fragment {
 
     private String name;
     private int level;
+    ImageView imageView;
 
     public static IconFragment newInstance(String name, int level) {
         IconFragment fragment = new IconFragment();
@@ -51,42 +52,51 @@ public class IconFragment extends Fragment {
         TextView textView = view.findViewById(R.id.name);
         textView.setText(name);
 
-        ImageView imageView = view.findViewById(R.id.icon);
+        imageView = view.findViewById(R.id.icon);
+
+
+        return view;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+        updateIcon();
+    }
+
+    public void updateIcon() {
         switch (level) {
             case IconFragment.level1:
-                Glide.with(view)
+                Glide.with(this)
                         .load(R.drawable.ic_level1)
                         .into(imageView);
                 break;
             case IconFragment.level2:
-                Glide.with(view)
+                Glide.with(this)
                         .load(R.drawable.ic_level2)
                         .into(imageView);
                 break;
             case IconFragment.level3:
-                Glide.with(view)
+                Glide.with(this)
                         .load(R.drawable.ic_level3)
                         .into(imageView);
                 break;
             case IconFragment.level4:
-                Glide.with(view)
+                Glide.with(this)
                         .load(R.drawable.ic_level4)
                         .into(imageView);
                 break;
             case IconFragment.level5:
-                Glide.with(view)
+                Glide.with(this)
                         .load(R.drawable.ic_level5)
                         .into(imageView);
                 imageView.setImageResource(R.drawable.level5);
                 break;
             case IconFragment.level6:
-                Glide.with(view)
+                Glide.with(this)
                         .load(R.drawable.ic_level6)
                         .into(imageView);
                 break;
         }
-
-        return view;
     }
 
 

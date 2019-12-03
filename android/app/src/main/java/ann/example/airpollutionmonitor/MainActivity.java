@@ -125,6 +125,7 @@ public class MainActivity extends BaseActivity
                 public void onPageSelected(int position) {
                     // 현재 장소 이름 표시
                     placeName.setText(locations.get(position).getName());
+
                 }
 
                 @Override
@@ -139,7 +140,7 @@ public class MainActivity extends BaseActivity
 
     public void setBackGroundColor(int level) {
         switch (level) {
-            case IconFragment.level1:
+            default:
                 layout.setBackgroundColor(getResources().getColor(R.color.colorLevel1));
                 break;
             case IconFragment.level2:
