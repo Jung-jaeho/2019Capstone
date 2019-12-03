@@ -18,8 +18,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import com.bumptech.glide.Glide;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -103,6 +101,7 @@ public class HomeFragment extends Fragment {
                             adapterViewPager = new ImagePagerAdapter(getChildFragmentManager(),
                                     FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT, sensorData);
                             vpPager.setAdapter(adapterViewPager);
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -117,6 +116,7 @@ public class HomeFragment extends Fragment {
                 });
 
     }
+
 
     public static class ListViewAdapter extends BaseAdapter{
         SensorData data;
@@ -178,46 +178,11 @@ public class HomeFragment extends Fragment {
             return view;
         }
 
-        private void setIconImage(View view, ImageView imageView, int level){
-            switch (level){
-                case IconFragment.level1:
-                    Glide.with(view)
-                            .load(R.drawable.level1)
-                            .into(imageView);
-                    break;
-                case IconFragment.level2:
-                    Glide.with(view)
-                            .load(R.drawable.level2)
-                            .into(imageView);
-                    break;
-                case IconFragment. level3:
-                    Glide.with(view)
-                            .load(R.drawable.level3)
-                            .into(imageView);
-                    break;
-                case IconFragment.level4:
-                    Glide.with(view)
-                            .load(R.drawable.level4)
-                            .into(imageView);
-                    break;
-                case IconFragment.level5:
-                    Glide.with(view)
-                            .load(R.drawable.level5)
-                            .into(imageView);
-                    imageView.setImageResource(R.drawable.level5);
-                    break;
-                case IconFragment.level6:
-                    Glide.with(view)
-                            .load(R.drawable.level6)
-                            .into(imageView);
-                    break;
-            }
-        }
     }
 
-    public static class ImagePagerAdapter extends FragmentPagerAdapter {
+    public class ImagePagerAdapter extends FragmentPagerAdapter {
         // 데이터 받아 오면 수정해야함
-        private static int NUM_ITEMS=2;
+        private int NUM_ITEMS=2;
         SensorData sensorData;
 
         public ImagePagerAdapter(@NonNull FragmentManager fm, int behavior, SensorData sensorData) {
@@ -228,11 +193,16 @@ public class HomeFragment extends Fragment {
         @NonNull
         @Override
         public Fragment getItem(int position) {
+            int level=0;
             switch (position) {
                 case 0:
-                    return IconFragment.newInstance("일산화탄소(CO)", getCOLevel(sensorData.getCO()));
+                    level = getCOLevel(sensorData.getCO());
+                    AppManager.getInstance().getMainActivity().setBackGroundColor(level); // 바탕색 변경
+                    return IconFragment.newInstance("일산화탄소(CO)", level );
                 case 1:
-                    return IconFragment.newInstance("메테인(CH4)", IconFragment.level2);
+                    level = getCH4Level(sensorData.getCH4());
+                    AppManager.getInstance().getMainActivity().setBackGroundColor(level); // 바탕색 변경
+                    return IconFragment.newInstance("메테인(CH4)", level);
                 default:
                     return null;
             }
@@ -243,16 +213,32 @@ public class HomeFragment extends Fragment {
             return NUM_ITEMS;
         }
 
-        private int getCOLevel(double CO){
-            if(CO<10){
+        private int getCOLevel(double value){
+            if(value<2){
                 return IconFragment.level1;
-            }else if(CO<25){
+            }else if(value<5.5){
                 return IconFragment.level2;
-            }else if(CO<50){
+            }else if(value<9){
                 return IconFragment.level3;
-            }else if(CO<100){
+            }else if(value<12){
                 return IconFragment.level4;
-            }else if(CO<300){
+            }else if(value<32){
+                return IconFragment.level5;
+            }else{
+                return IconFragment.level6;
+            }
+        }
+
+        private int getCH4Level(double value){
+            if(value<60){
+                return IconFragment.level1;
+            }else if(value<120){
+                return IconFragment.level2;
+            }else if(value<180){
+                return IconFragment.level3;
+            }else if(value<280){
+                return IconFragment.level4;
+            }else if(value<400){
                 return IconFragment.level5;
             }else{
                 return IconFragment.level6;

@@ -26,6 +26,7 @@
             android:checkable="true"
             app:actionViewClass="android.widget.Switch"
             app:showAsAction="always"/>
+        <!--
         <item
             android:id="@+id/nav_notice"
             android:title="@string/menu_notice"
@@ -42,6 +43,7 @@
             android:id="@+id/nav_settings"
             android:title="@string/menu_settings"
             android:icon="@drawable/ic_setting"/>
+        -->
     </group>
 
 </menu>

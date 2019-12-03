@@ -43,6 +43,7 @@ public class IconFragment extends Fragment {
         level = getArguments().getInt("level", 0);
     }
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -53,35 +54,35 @@ public class IconFragment extends Fragment {
 
         ImageView imageView = view.findViewById(R.id.icon);
         switch (level){
-            case level1:
+            case IconFragment.level1:
                 Glide.with(view)
-                        .load(R.drawable.level1)
+                        .load(R.drawable.ic_level1)
                         .into(imageView);
                 break;
-            case level2:
+            case IconFragment.level2:
                 Glide.with(view)
-                        .load(R.drawable.level2)
+                        .load(R.drawable.ic_level2)
                         .into(imageView);
                 break;
-            case level3:
+            case IconFragment. level3:
                 Glide.with(view)
-                        .load(R.drawable.level3)
+                        .load(R.drawable.ic_level3)
                         .into(imageView);
                 break;
-            case level4:
+            case IconFragment.level4:
                 Glide.with(view)
-                        .load(R.drawable.level4)
+                        .load(R.drawable.ic_level4)
                         .into(imageView);
                 break;
-            case level5:
+            case IconFragment.level5:
                 Glide.with(view)
-                        .load(R.drawable.level5)
+                        .load(R.drawable.ic_level5)
                         .into(imageView);
                 imageView.setImageResource(R.drawable.level5);
                 break;
-            case level6:
+            case IconFragment.level6:
                 Glide.with(view)
-                        .load(R.drawable.level6)
+                        .load(R.drawable.ic_level6)
                         .into(imageView);
                 break;
         }

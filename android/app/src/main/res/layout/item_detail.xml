@@ -11,14 +11,15 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:text="일산화탄소"/>
+        android:text="일산화탄소"
+        android:textColor="@color/colorWhite"/>
 
     <ImageView
         android:id="@+id/icon"
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_centerInParent="true"
-        android:src="@drawable/level1"/>
+        android:src="@drawable/ic_level1"/>
 
     <TextView
         android:id="@+id/value"
@@ -27,7 +28,8 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:text="0.9ppm"/>
+        android:text="0.9ppm"
+        android:textColor="@color/colorWhite"/>
 
 
 </RelativeLayout>

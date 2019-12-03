@@ -2,11 +2,12 @@
 package ann.example.airpollutionmonitor.View.Chart.ListViewItems;
 
 import android.annotation.SuppressLint;
-import android.app.DatePickerDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
@@ -15,7 +16,6 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.ChartData;
 import com.github.mikephil.charting.data.LineData;
 
-import ann.example.airpollutionmonitor.AppManager;
 import ann.example.airpollutionmonitor.R;
 
 public class LineChartItem extends ChartItem {
@@ -43,7 +43,7 @@ public class LineChartItem extends ChartItem {
             convertView = LayoutInflater.from(c).inflate(
                     R.layout.list_item_linechart, null);
             holder.chart = convertView.findViewById(R.id.chart);
-            holder.button = convertView.findViewById(R.id.datePicker);
+            holder.spinner = convertView.findViewById(R.id.spinner);
 
             convertView.setTag(holder);
 
@@ -51,11 +51,19 @@ public class LineChartItem extends ChartItem {
             holder = (ViewHolder) convertView.getTag();
         }
 
+        // setting spinner
+        String[] str = c.getResources().getStringArray(R.array.chartArray);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(c, R.layout.spinner_item, str);
+        adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+        holder.spinner.setAdapter(adapter);
 
         // apply styling
         // holder.chart.setValueTypeface(mTf);
         holder.chart.getDescription().setEnabled(false);
         holder.chart.setDrawGridBackground(false);
+        holder.chart.setAutoScaleMinMaxEnabled(true);  // y축 자동 보정
+        holder.chart.setDragEnabled(true);
+        holder.chart.setScaleEnabled(true);
 
         XAxis xAxis = holder.chart.getXAxis();
         xAxis.setPosition(XAxisPosition.BOTTOM);
@@ -65,15 +73,8 @@ public class LineChartItem extends ChartItem {
         xAxis.setAxisMaximum(24);
 
         YAxis leftAxis = holder.chart.getAxisLeft();
-        leftAxis.setLabelCount(5, false);
-        leftAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
-        leftAxis.setAxisMaximum(AppManager.getInstance().maxCOLevel);
-
-        YAxis rightAxis = holder.chart.getAxisRight();
-        rightAxis.setLabelCount(5, false);
-        rightAxis.setDrawGridLines(false);
-        rightAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
-        leftAxis.setAxisMaximum(AppManager.getInstance().maxCH4Level);
+        leftAxis.setTextColor(Color.BLACK);
+        leftAxis.setDrawGridLines(true);
 
         // set data
         holder.chart.setData((LineData) mChartData);
@@ -82,27 +83,13 @@ public class LineChartItem extends ChartItem {
         // holder.chart.invalidate();
         holder.chart.animateX(750);
 
-        holder.button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DatePickerDialog.OnDateSetListener listener = new DatePickerDialog.OnDateSetListener() {
-                @Override
-                public void onDateSet(android.widget.DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                    //Toast.makeText(context, year + "년" + monthOfYear + "월" + dayOfMonth +"일", Toast.LENGTH_SHORT).show();
-                }
-            };
-                DatePickerDialog dialog = new DatePickerDialog(context, listener, 2019, 11, 29);
-                dialog.show();
-            }
-        });
-
         return convertView;
     }
 
 
     private static class ViewHolder {
         LineChart chart;
-        Button button;
+        Spinner spinner;
     }
 
 

@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Legend;
@@ -53,6 +55,7 @@ public class BarChartItem extends ChartItem implements OnChartGestureListener, O
             convertView = LayoutInflater.from(c).inflate(
                     R.layout.list_item_barchart, null);
             holder.chart = convertView.findViewById(R.id.chart);
+            holder.spinner = convertView.findViewById(R.id.spinner);
 
             convertView.setTag(holder);
 
@@ -82,6 +85,13 @@ public class BarChartItem extends ChartItem implements OnChartGestureListener, O
         rightAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
 
          */
+
+        // setting spinner
+        String[] str = c.getResources().getStringArray(R.array.chartArray);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(c, R.layout.spinner_item, str);
+        adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+        holder.spinner.setAdapter(adapter);
+
         holder.chart.setOnChartValueSelectedListener(this);
         holder.chart.getDescription().setEnabled(false);
 
@@ -259,5 +269,6 @@ public class BarChartItem extends ChartItem implements OnChartGestureListener, O
 
     private static class ViewHolder {
         BarChart chart;
+        Spinner spinner;
     }
 }
