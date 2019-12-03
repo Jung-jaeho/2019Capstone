@@ -26,7 +26,7 @@ public class IconFragment extends Fragment {
     private String name;
     private int level;
 
-    public static IconFragment newInstance(String name, int level){
+    public static IconFragment newInstance(String name, int level) {
         IconFragment fragment = new IconFragment();
         Bundle args = new Bundle();
         args.putString("name", name);   // 오염 물질 이름
@@ -53,7 +53,7 @@ public class IconFragment extends Fragment {
         textView.setText(name);
 
         ImageView imageView = view.findViewById(R.id.icon);
-        switch (level){
+        switch (level) {
             case IconFragment.level1:
                 Glide.with(view)
                         .load(R.drawable.ic_level1)
@@ -64,7 +64,7 @@ public class IconFragment extends Fragment {
                         .load(R.drawable.ic_level2)
                         .into(imageView);
                 break;
-            case IconFragment. level3:
+            case IconFragment.level3:
                 Glide.with(view)
                         .load(R.drawable.ic_level3)
                         .into(imageView);
@@ -89,4 +89,6 @@ public class IconFragment extends Fragment {
 
         return view;
     }
+
+
 }

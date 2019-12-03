@@ -22,6 +22,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 import ann.example.airpollutionmonitor.AppManager;
 import ann.example.airpollutionmonitor.Controller.MonitorDataSource;
 import ann.example.airpollutionmonitor.Model.Location;
@@ -41,7 +43,7 @@ public class HomeFragment extends Fragment {
     ListView listView;
     ViewPager vpPager;
 
-    public static HomeFragment newInstance(Location location){
+    public static HomeFragment newInstance(Location location) {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
         args.putSerializable("location", location);
@@ -73,7 +75,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void setCurrentSensorData(String serial) {
-        int from=0, size=1;
+        int from = 0, size = 1;
 
         MonitorDataSource monitorDataSource = MonitorDataSource.getInstance();
         monitorDataSource.getJsonByIndex(serial, from, size)
@@ -91,7 +93,7 @@ public class HomeFragment extends Fragment {
                             JSONObject dataJsonObject = jsonArray.getJSONObject(0);
                             //Log.d(TAG, jsonArray.toString());
                             SensorData sensorData = new SensorData(dataJsonObject.getString("time_slot"), dataJsonObject.getDouble("TEM")
-                                    ,dataJsonObject.getDouble("HUM") , dataJsonObject.getDouble("CO"), dataJsonObject.getDouble("CH4"));
+                                    , dataJsonObject.getDouble("HUM"), dataJsonObject.getDouble("CO"), dataJsonObject.getDouble("CH4"));
                             Log.d(TAG, sensorData.toString());
                             AppManager.getInstance().setSensorData(sensorData);
 
@@ -118,8 +120,11 @@ public class HomeFragment extends Fragment {
     }
 
 
-    public static class ListViewAdapter extends BaseAdapter{
+    public class ListViewAdapter extends BaseAdapter {
         SensorData data;
+        ImageView icon;
+        TextView value;
+        TextView type;
 
         public ListViewAdapter(SensorData data) {
             this.data = data;
@@ -147,32 +152,30 @@ public class HomeFragment extends Fragment {
             if (view == null) {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 view = inflater.inflate(R.layout.item_detail, viewGroup, false);
+                icon = view.findViewById(R.id.icon);
+                value = view.findViewById(R.id.type);
+                type = view.findViewById(R.id.value);
+            }
+            switch (i) {
+                case 0:
+                    icon.setVisibility(View.INVISIBLE);
+                    type.setText("온도");
+                    value.setText(data.getTem() + " ℃");
+                    break;
+                case 1:
+                    icon.setVisibility(View.INVISIBLE);
+                    type.setText("습도");
+                    value.setText(data.getHum() + " g/m3");
+                    break;
+                case 2:
+                    type.setText("일산화탄소(CO)");
+                    value.setText(data.getCO() + " ppm");
+                    break;
+                case 3:
+                    type.setText("메테인(CH4)");
+                    value.setText(data.getCH4() + " ppm");
 
-                ImageView icon = view.findViewById(R.id.icon);
-                TextView type = view.findViewById(R.id.type);
-                TextView value = view.findViewById(R.id.value);
-
-                switch (i){
-                    case 0:
-                        icon.setVisibility(View.INVISIBLE);
-                        type.setText("온도");
-                        value.setText(data.getTem() + " ℃");
-                        break;
-                    case 1:
-                        icon.setVisibility(View.INVISIBLE);
-                        type.setText("습도");
-                        value.setText(data.getHum() + " g/m3");
-                        break;
-                    case 2:
-                        type.setText("일산화탄소(CO)");
-                        value.setText(data.getCO() + " ppm");
-                        break;
-                    case 3:
-                        type.setText("메테인(CH4)");
-                        value.setText(data.getCH4() + " ppm");
-
-                        break;
-                }
+                    break;
             }
 
             return view;
@@ -182,27 +185,32 @@ public class HomeFragment extends Fragment {
 
     public class ImagePagerAdapter extends FragmentPagerAdapter {
         // 데이터 받아 오면 수정해야함
-        private int NUM_ITEMS=2;
-        SensorData sensorData;
+        private int NUM_ITEMS = 2;
+        private SensorData sensorData;
+        private static final int DEFAULT_LEVEL = 1;
+        private ArrayList<Fragment> fragmentArrayList = new ArrayList();
 
         public ImagePagerAdapter(@NonNull FragmentManager fm, int behavior, SensorData sensorData) {
             super(fm, behavior);
+            fragmentArrayList.add(IconFragment.newInstance("일산화탄소(CO)", DEFAULT_LEVEL));
+            fragmentArrayList.add(IconFragment.newInstance("메테인(CH4)", DEFAULT_LEVEL));
             this.sensorData = sensorData;
         }
+
 
         @NonNull
         @Override
         public Fragment getItem(int position) {
-            int level=0;
+            int level = 0;
             switch (position) {
                 case 0:
                     level = getCOLevel(sensorData.getCO());
                     AppManager.getInstance().getMainActivity().setBackGroundColor(level); // 바탕색 변경
-                    return IconFragment.newInstance("일산화탄소(CO)", level );
+                    return fragmentArrayList.get(0);
                 case 1:
                     level = getCH4Level(sensorData.getCH4());
                     AppManager.getInstance().getMainActivity().setBackGroundColor(level); // 바탕색 변경
-                    return IconFragment.newInstance("메테인(CH4)", level);
+                    return fragmentArrayList.get(1);
                 default:
                     return null;
             }
@@ -213,34 +221,34 @@ public class HomeFragment extends Fragment {
             return NUM_ITEMS;
         }
 
-        private int getCOLevel(double value){
-            if(value<2){
+        private int getCOLevel(double value) {
+            if (value < 2) {
                 return IconFragment.level1;
-            }else if(value<5.5){
+            } else if (value < 5.5) {
                 return IconFragment.level2;
-            }else if(value<9){
+            } else if (value < 9) {
                 return IconFragment.level3;
-            }else if(value<12){
+            } else if (value < 12) {
                 return IconFragment.level4;
-            }else if(value<32){
+            } else if (value < 32) {
                 return IconFragment.level5;
-            }else{
+            } else {
                 return IconFragment.level6;
             }
         }
 
-        private int getCH4Level(double value){
-            if(value<60){
+        private int getCH4Level(double value) {
+            if (value < 60) {
                 return IconFragment.level1;
-            }else if(value<120){
+            } else if (value < 120) {
                 return IconFragment.level2;
-            }else if(value<180){
+            } else if (value < 180) {
                 return IconFragment.level3;
-            }else if(value<280){
+            } else if (value < 280) {
                 return IconFragment.level4;
-            }else if(value<400){
+            } else if (value < 400) {
                 return IconFragment.level5;
-            }else{
+            } else {
                 return IconFragment.level6;
             }
         }

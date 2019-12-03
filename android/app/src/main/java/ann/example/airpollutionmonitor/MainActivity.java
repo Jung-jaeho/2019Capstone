@@ -194,18 +194,22 @@ public class MainActivity extends BaseActivity
     }
 
 
-    public static class PagerAdapter extends FragmentPagerAdapter {
-        ArrayList<Location> locations;
+    public class PagerAdapter extends FragmentPagerAdapter {
+        private ArrayList<Location> locations;
+        private ArrayList<Fragment> fragmentArrayList = new ArrayList();
 
         public PagerAdapter(@NonNull FragmentManager fm, ArrayList<Location> locations) {
             super(fm);
             this.locations = locations;
+            for (int i = 0; i < locations.size(); i++) {
+                fragmentArrayList.add(HomeFragment.newInstance(locations.get(i)));
+            }
         }
 
         @NonNull
         @Override
         public Fragment getItem(int position) {
-            return HomeFragment.newInstance(locations.get(position));
+            return fragmentArrayList.get(position);
         }
 
         @Override
