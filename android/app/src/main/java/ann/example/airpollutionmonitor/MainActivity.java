@@ -125,6 +125,7 @@ public class MainActivity extends BaseActivity
                 public void onPageSelected(int position) {
                     // 현재 장소 이름 표시
                     placeName.setText(locations.get(position).getName());
+
                 }
 
                 @Override
@@ -139,18 +140,24 @@ public class MainActivity extends BaseActivity
 
     public void setBackGroundColor(int level) {
         switch (level) {
-            case IconFragment.level1:
+            default:
                 layout.setBackgroundColor(getResources().getColor(R.color.colorLevel1));
+                break;
             case IconFragment.level2:
                 layout.setBackgroundColor(getResources().getColor(R.color.colorLevel2));
+                break;
             case IconFragment.level3:
                 layout.setBackgroundColor(getResources().getColor(R.color.colorLevel3));
+                break;
             case IconFragment.level4:
                 layout.setBackgroundColor(getResources().getColor(R.color.colorLevel4));
+                break;
             case IconFragment.level5:
                 layout.setBackgroundColor(getResources().getColor(R.color.colorLevel5));
+                break;
             case IconFragment.level6:
                 layout.setBackgroundColor(getResources().getColor(R.color.colorLevel6));
+                break;
         }
     }
 
@@ -194,18 +201,22 @@ public class MainActivity extends BaseActivity
     }
 
 
-    public static class PagerAdapter extends FragmentPagerAdapter {
-        ArrayList<Location> locations;
+    public class PagerAdapter extends FragmentPagerAdapter {
+        private ArrayList<Location> locations;
+        private ArrayList<Fragment> fragmentArrayList = new ArrayList();
 
         public PagerAdapter(@NonNull FragmentManager fm, ArrayList<Location> locations) {
             super(fm);
             this.locations = locations;
+            for (int i = 0; i < locations.size(); i++) {
+                fragmentArrayList.add(HomeFragment.newInstance(locations.get(i)));
+            }
         }
 
         @NonNull
         @Override
         public Fragment getItem(int position) {
-            return HomeFragment.newInstance(locations.get(position));
+            return fragmentArrayList.get(position);
         }
 
         @Override
