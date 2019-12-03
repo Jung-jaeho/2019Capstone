@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -17,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.ViewPager;
 
 import org.json.JSONArray;
@@ -39,9 +39,9 @@ public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
 
     private MonitorDataSource monitorDataSource;
-    private ImagePagerAdapter adapterViewPager;
+    ImagePagerAdapter adapterViewPager;
     private ListViewAdapter listViewAdapter;
-    private LinearLayout outer;
+    private SwipeRefreshLayout outer;
     Location location;
     ListView listView;
     ViewPager vpPager;
@@ -81,6 +81,7 @@ public class HomeFragment extends Fragment {
 
         adapterViewPager = new ImagePagerAdapter(getChildFragmentManager(),
                 FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+
         vpPager.setAdapter(adapterViewPager);
         vpPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -98,7 +99,13 @@ public class HomeFragment extends Fragment {
 
             }
         });
-
+        outer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                setCurrentSensorData(location.getSerialNumber());
+                outer.setRefreshing(false);
+            }
+        });
 
         return view;
     }
@@ -148,6 +155,7 @@ public class HomeFragment extends Fragment {
         ImageView icon;
         TextView value;
         TextView type;
+
 
         public void setData(SensorData data) {
             this.data = data;
@@ -206,12 +214,12 @@ public class HomeFragment extends Fragment {
     }
 
     public class ImagePagerAdapter extends FragmentPagerAdapter {
+        public int currentLevel;
         // 데이터 받아 오면 수정해야함
         private int NUM_ITEMS = 2;
         private SensorData sensorData = new SensorData("", 0, 0, 0, 0);
         private static final int DEFAULT_LEVEL = 1;
         private ArrayList<IconFragment> fragmentArrayList = new ArrayList();
-        private int level = 0;
 
         public ImagePagerAdapter(@NonNull FragmentManager fm, int behavior) {
             super(fm, behavior);
@@ -225,12 +233,15 @@ public class HomeFragment extends Fragment {
                 switch (i) {
                     case 0:
                         fragmentArrayList.get(i).setLevel(getCOLevel(sensorData.getCO()));
+                        currentLevel = getCOLevel(sensorData.getCO());
                         break;
                     case 1:
                         fragmentArrayList.get(i).setLevel(getCH4Level(sensorData.getCH4()));
+                        currentLevel = getCH4Level(sensorData.getCH4());
                         break;
                 }
             }
+
             notifyDataSetChanged();
         }
 
