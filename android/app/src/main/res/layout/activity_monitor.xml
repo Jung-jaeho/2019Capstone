@@ -16,8 +16,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="장소명"
-        android:textColor="@color/colorBlack"
-        android:textSize="18sp" />
+        android:textColor="@color/colorMain"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/vpPager_monitor"

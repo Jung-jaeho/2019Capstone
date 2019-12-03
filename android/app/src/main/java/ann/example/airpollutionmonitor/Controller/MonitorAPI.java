@@ -12,7 +12,7 @@ public interface MonitorAPI {
     Call<String> getJsonByIndex(@Path("serial")String serial
             , @Path("from")int from, @Path("size")int size);
 
-    @GET("api/period/{serial}/{start_date}/{end_date}")
+    @GET("api/period/{serial}/{start_date}/{end_date}/")
     Call<String> getJsonByDate(@Path("serial")String serial
             , @Path("start_date")String start_date, @Path("end_date")String end_date);
 }

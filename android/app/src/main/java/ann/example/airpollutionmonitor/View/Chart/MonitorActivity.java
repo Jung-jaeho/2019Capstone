@@ -74,16 +74,21 @@ public class MonitorActivity extends BaseActivity {
 
     public static class PagerAdapter extends FragmentPagerAdapter {
         ArrayList<Location> locations;
+        ArrayList<Fragment> items ;
 
         public PagerAdapter(@NonNull FragmentManager fm, ArrayList<Location> locations) {
             super(fm);
             this.locations = locations;
+
+            items = new ArrayList<>();
+            for(int i=0;i<locations.size();i++)
+                items.add(MonitorFragment.newInstance(locations.get(i)));
         }
 
         @NonNull
         @Override
         public Fragment getItem(int position) {
-            return MonitorFragment.newInstance(locations.get(position));
+            return items.get(position);
         }
 
         @Override
