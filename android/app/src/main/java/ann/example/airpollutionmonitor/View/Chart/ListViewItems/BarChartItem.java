@@ -32,7 +32,7 @@ import ann.example.airpollutionmonitor.R;
 import ann.example.airpollutionmonitor.View.Chart.MyMarkerView;
 
 public class BarChartItem extends ChartItem implements OnChartGestureListener, OnChartValueSelectedListener {
-
+    public ViewHolder holder;
     public BarChartItem(ChartData<?> cd, Context c) {
         super(cd);
     }
@@ -45,8 +45,6 @@ public class BarChartItem extends ChartItem implements OnChartGestureListener, O
     @SuppressLint("InflateParams")
     @Override
     public View getView(int position, View convertView, Context c) {
-
-        ViewHolder holder;
 
         if (convertView == null) {
 
@@ -129,7 +127,7 @@ public class BarChartItem extends ChartItem implements OnChartGestureListener, O
         // (0.2 + 0.03) * 4 + 0.08 = 1.00 -> interval per "group"
 
         int groupCount =  6;
-        int startYear = 1980;
+        int startYear = 0;
         int endYear = startYear + groupCount;
 
 
@@ -242,8 +240,8 @@ public class BarChartItem extends ChartItem implements OnChartGestureListener, O
 
     }
 
-    private static class ViewHolder {
-        BarChart chart;
-        Spinner spinner;
+    public static class ViewHolder {
+        public BarChart chart;
+        public Spinner spinner;
     }
 }

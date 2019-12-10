@@ -1,5 +1,7 @@
 package ann.example.airpollutionmonitor;
 
+import com.github.mikephil.charting.data.Entry;
+
 import java.util.ArrayList;
 
 import ann.example.airpollutionmonitor.Model.Location;
@@ -48,6 +50,28 @@ public class AppManager {
     public void setSensorData(SensorData sensorData) {
         this.sensorData = sensorData;
     }
+
+    ArrayList<Entry> values1=null;
+
+    public ArrayList<Entry> getValues1() {
+        return values1;
+    }
+
+    public void setValues1(ArrayList<Entry> values1) {
+        this.values1 = values1;
+    }
+
+    ArrayList<Entry> values2=null;
+
+    public ArrayList<Entry> getValues2() {
+        return values2;
+    }
+
+    public void setValues2(ArrayList<Entry> values2) {
+        this.values2 = values2;
+    }
+
+
 
     // 기준
     public float maxCOLevel = 50f;
