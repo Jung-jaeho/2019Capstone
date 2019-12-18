@@ -7,20 +7,13 @@ struct bt_table table[7];
 struct properties_value *pro;
 void set_init()
 {
-	if(mkdir("/airbeat",0777)>=0)
-	{
-		mkdir("/airbeat/sensor_csv",0777);
-		pro = read_properties();
-	}
-	else
-	{
-		remove("/airbeat/sensor_csv/*");
-		pro = read_properties();
-	}
+	pro = read_properties();
 	return;
 }
 void* read_connection(void* ar)
 {
+
+    	sigset_t set;
 	struct sockaddr_rc *addr=(struct sockaddr_rc*)malloc(sizeof(struct sockaddr_rc));
 	memset(addr,0,sizeof(struct sockaddr_rc));
 	thread_argv *m_ar = (thread_argv*)ar;
@@ -32,6 +25,14 @@ void* read_connection(void* ar)
 	struct timeval tv;
 	tv.tv_sec = 2;
 	tv.tv_usec = 0;
+	sigemptyset(&set);
+    	sigaddset(&set,SIGALRM);
+    	sigaddset(&set,SIGCHLD);
+    	int sig_code;
+    	sig_code = pthread_sigmask(SIG_SETMASK,&set,NULL);
+	printf("%d \n",sig_code); 
+	if(sig_code != 0)
+		printf("ERROR: SIGMASK\n");
 RE_CONNECTION:
 	while(status < 0)
 	{ 	
@@ -80,7 +81,7 @@ RE_CONNECTION:
 				}
 				if(r_len == 0)
 					continue;
-				printf("Size : %d %s\n",r_len,buf);
+				//printf("Size : %d %s\n",r_len,buf);
 				buf[r_len-1] = '\0';
 				struct s_time *t= getTime();
 				r_len = sprintf(s_buf,"%c,%02d:%02d:%02d,%s\n",port,t->hour,t->min,t->sec,buf);
@@ -133,6 +134,7 @@ int main()
 			free(addr_set[i]);
 		}
 	}
+
 	for(i = 0; i<7;i++)
 	{
 		int j;
@@ -157,15 +159,13 @@ int main()
 			}
 		}	
 	}
-	alarm(20);
 	int signo[2] = {SIGALRM,SIGCHLD};
 	void (*signal_function[2])(int) = {sig_time,sig_child};
 	set_signal_setting(2,signo,signal_function);
+	alarm(5);
 	for(i = 0 ; i <count;i++)
 	{
 		pthread_join(pid[i],NULL);
 	}
-	sig_time(SIGCHLD);
-	sig_child(SIGCHLD);
 	printf("Finish\n");
 }

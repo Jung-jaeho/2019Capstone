@@ -27,7 +27,7 @@ int read_wait(int fd)
 		read(fd,length,2);
 		int size;
 		size = atoi(length);
-		printf("%d\n",size);
+	//	printf("%d\n",size);
 		return size;
 	}
 	while(read(fd,&buf,1)>=0)
@@ -91,54 +91,4 @@ DONE:
 	bt_free(info);
 	hci_close_dev(dd);
 	return n;
-}
-int scan_bluetooth_reconnect(char **addrset)
-{
-	char addr[18],name[255];
-	uint8_t lap[3] = {0x33,0x8b,0x9e};
-	struct hci_dev_info di;
-	inquiry_info *info = NULL;	
-	int dd=0,dev_id,i,num_rsp=0,length=8,n=0,flags=0;
-	dev_id = hci_get_route(NULL);
-	if(dev_id < 0 )
-	{
-		perror("Device not Inside");
-		goto ERROR_EXIT;
-	}
-	if(hci_devinfo(dev_id,&di)<0)
-	{
-		perror("can`t get device info");
-		goto ERROR_EXIT;
-	}
-	num_rsp = hci_inquiry(dev_id,length,num_rsp,lap,&info,flags);
-	if(num_rsp <0)
-	{
-		perror("inquiry error");
-		goto ERROR_EXIT;
-	}
-	dd = hci_open_dev(dev_id);
-	if(dd<0)
-	{
-		perror("HCI_device open filed");
-		goto ERROR_EXIT;
-	}
-	memset(addrset,0,sizeof(char*)*7);
-	for(i = 0 ; i < num_rsp;i++)
-	{
-		ba2str(&(info+i)->bdaddr,addr);
-		if(strcmp(addr,*(addrset)) == 0)
-		{
-			*(addrset) = addr;
-			return 1;
-		}
-		printf("%s %s\n",addr,name);
-	}
-	goto DONE;
-ERROR_EXIT:
-	bt_free(info);
-	hci_close_dev(dd);
-	return -1;
-DONE:
-	bt_free(info);
-	hci_close_dev(dd);
 }

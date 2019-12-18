@@ -16,14 +16,12 @@ int write_csv_to_fd(int fd, char* value,int len)
 }
 int group_csv_file(int number)
 {
-	int fd[7],sfd=-1,i,j,now_count,r_len;
+	int fd[7],sfd=-1,i,j,now_count,r_len,count=0;
 	char file_name[7][150];
 	char object[1024];
 	memset(fd,-1,sizeof(fd));
 	for(i = 0,j=0 ; i < pro->arduino_count;i++)
 	{
-		printf("%d\n",i);
-		usleep(1000*2000);
 		if(table[i].connect_number == 0 || table[i].tf == false)
 		{
 			printf("number : %d\n",table[i].connect_number);
@@ -33,12 +31,16 @@ int group_csv_file(int number)
 		printf("%s\n",file_name[i]);
 		while(fd[j] <0)
 		{
+			if(table[i].connect_number == 0 || table[i].tf == false)
+			{
+				break;
+			}
 			fd[j] = open(file_name[i],O_RDONLY|O_EXCL,0666);
 		}
 		j++;
 	}
 	now_count = j;
-	if(fd[0]<0)
+	if(fd[0] < 0)
 	{
 		printf("fd none\n");
 		return -1;
@@ -47,7 +49,11 @@ int group_csv_file(int number)
 	while(sfd<0)
 	{
 		sfd = open(SEND_FILE_NAME,O_CREAT|O_EXCL|O_WRONLY,0666);
-		usleep(500);
+		usleep(500*1000);
+		if(count++ > 100){
+			printf("File open Fail : Send_File\n");
+			return -1;
+		}
 	}
 	for(i=0;i<now_count;i++)
 	{

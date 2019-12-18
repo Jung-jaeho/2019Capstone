@@ -8,4 +8,6 @@ libcsv.a : csv_writer.o
 csv_writer.o : 
 	gcc -c csv_writer.c
 
+clean :
+	rm *.a *.o
 
