@@ -75,7 +75,7 @@ void sig_child(int signo)
 		remove(SEND_FILE_NAME);
 		alarm(120);
 	}
-	else if(value == 1)
+	else
 	{
 		int signo_num[2] = {SIGALRM,SIGCHLD};
 		void (*signal_function[2])(int) = {sig_time,sig_child};
@@ -83,6 +83,6 @@ void sig_child(int signo)
 		remove(SEND_FILE_NAME);
 		printf("OK \n");
 		printf("pid close %d\n",pid);	
-		alarm(15);
+		alarm(7);
 	}
 }

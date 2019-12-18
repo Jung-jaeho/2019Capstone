@@ -162,7 +162,7 @@ int main()
 	int signo[2] = {SIGALRM,SIGCHLD};
 	void (*signal_function[2])(int) = {sig_time,sig_child};
 	set_signal_setting(2,signo,signal_function);
-	alarm(15);
+	alarm(5);
 	for(i = 0 ; i <count;i++)
 	{
 		pthread_join(pid[i],NULL);
