@@ -10,6 +10,9 @@ public class SensorData implements Serializable {
     String strDate;
     double tem, hum, CO, CH4;
 
+    public SensorData() {
+    }
+
     public SensorData(String strDate, double tem, double hum, double CO, double CH4) {
         this.strDate =strDate;
         this.tem = tem;

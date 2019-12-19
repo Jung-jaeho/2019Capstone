@@ -251,7 +251,7 @@ public class HomeFragment extends Fragment {
                     AppManager.getInstance().getMainActivity().setBackGroundColor(getCOLevel(sensorData.getCO())); // 바탕색 변경
                     break;
                 case 1:
-                    AppManager.getInstance().getMainActivity().setBackGroundColor(getCOLevel(sensorData.getCH4())); // 바탕색 변경
+                    AppManager.getInstance().getMainActivity().setBackGroundColor(getCH4Level(sensorData.getCH4())); // 바탕색 변경
                     break;
             }
         }

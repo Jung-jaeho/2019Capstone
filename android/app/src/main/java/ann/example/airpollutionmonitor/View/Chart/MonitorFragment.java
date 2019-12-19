@@ -415,14 +415,15 @@ public class MonitorFragment extends Fragment implements OnChartValueSelectedLis
             @Override
             public void run() {
                 // Don't generate garbage runnables inside the loop.
-                int i=0;
+                int i=20;
                 while (true) {
                     if(Thread.interrupted()) { break; }
 
                     if(getActivity() != null) {
-                        //getActivity().runOnUiThread(getRunnable(i));
-                        //i++;
-                        getActivity().runOnUiThread(getRunnable(0));
+                        getActivity().runOnUiThread(getRunnable(i));
+                        if(i!=0)
+                            i--;
+                        //getActivity().runOnUiThread(getRunnable(0));
                         try {
                             Thread.sleep(2000);
                         } catch (InterruptedException e) {
