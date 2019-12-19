@@ -9,5 +9,7 @@ urlpatterns = [
     path('test/',views.testView),
     path('test2/',views.testView2),
     path('create/',views.create),
-    path('search/<int:start>/<int:end>/',views.search)
+    path('search/<str:SerialNumber>/<int:start>/<int:end>/',views.search),
+    path('period/<str:serial_number>/<int:start_date>/<int:end_date>/',views.period),
+    path('info/<str:SerialNumber>/',views.info)
 ]
