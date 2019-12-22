@@ -17,65 +17,6 @@ location=['식당A','기계실']
 # 변경 x
 elasticsearch_end_point = "https://search-capstone-jxmuqgz457mkhgptlpbvget25m.ap-northeast-2.es.amazonaws.com/"
 
-'''
-"""
-{
-    "uuid":"edsd-dsfsd-assda-fdsds",
-    "datas":[
-        {"time_slot":"2019-10-28T16:14:00Z",
-        "tem":"2019-10-28T16:14:00Z",
-        "hum":"2019-10-28T16:14:00Z",
-        "co":"2019-10-28T16:14:00Z",
-        "ch4":"2019-10-28T16:14:00Z"
-        },
-        {"time_slot":"2019-10-28T16:14:00Z",import requests
-
-
-
-URL = "https://jaeho.dev/api/create/"
-
-data = {"time_slot":"2019-11-01T14:14:00Z",
-  "tem":29.3,
-  "hum":20,
-  "co":0.2,
-  "ch4":4.3}
-
-res = requests.post(URL,data=data)
-Response(res)
-
-print(res.text)
-
-
-
-
-
-        "tem":"2019-10-28T16:14:00Z",
-        "hum":"2019-10-28T16:14:00Z",
-        "co":"2019-10-28T16:14:00Z",
-        "ch4":"2019-10-28T16:14:00Z"
-        },
-    ]
-}
-"""
-index=['sn100','sn101']
-docType=['A','B']
-
-for idx, data in enumerate(request.data.datas):
-
-    req= {"time_slot": data['time_slot'],
-        "tem":data['tem'],
-        "hum":data['hum'],
-        "co":data['co'],
-        "ch4": data['ch4']
-    }
-
-    elasticsearch_end_point = "https://search-capstone-jxmuqgz457mkhgptlpbvget25m.ap-northeast-2.es.amazonaws.com/"
-    es = Elasticsearch(elasticsearch_end_point)
-
-    res = es.index(index=index[idx], doc_type=docType[idx],  body=req)
-'''
-
-
 
 def send_fcm_notification(idx, title, body):
     push_service = FCMNotification(api_key="AAAAA_JhHSw:APA91bHsetgeQtaa8hBOju8M4TuRyeqSg2OaRe-KO3snUOt2fRmAbFP-g5fZlhaDwAEWr1B5CnTBV1oqPbC2hNj0-xVag4E_G36YtCoN03KwRIG0CrkyOnj8BZ-z9GXCVwrj5OEE5fYE")
@@ -85,36 +26,6 @@ def send_fcm_notification(idx, title, body):
     ids.append(ids_list[idx])
 
     result = push_service.notify_multiple_devices(registration_ids=ids, message_title=title, message_body=body)
-
-
-
-
-
-@api_view(['GET','POST'])
-def testView(request):
-
-    if request.method == 'GET':
-        return Response("[테스트] POST로 요청하세요.")
-
-    elif request.method == 'POST':
-        data = request.data
-        elasticsearch_end_point = "https://search-capstone-jxmuqgz457mkhgptlpbvget25m.ap-northeast-2.es.amazonaws.com/"
-        es = Elasticsearch(elasticsearch_end_point)
-        res = es.index(index="sn100", doc_type="A",  body=data)
-        #logging.debug(res)
-        return Response(res)
-
-
-@api_view(['GET','POST'])
-def testView2(request):
-
-    if request.method == 'GET':
-        return Response("[테스트] POST로 요청하세요.")
-
-    elif request.method == 'POST':
-        data = request.data
-        return Response(data)
-
 
 @api_view(['POST'])
 def create(request):
@@ -195,6 +106,7 @@ def create(request):
         }
         
         return Response(res)
+
 
 
 @api_view(['GET'])
