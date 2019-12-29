@@ -1,7 +1,7 @@
 # 2019 Capstone Sejong University
 
 
-## 목차
+### 목차
 
 ### 1) 개요
 ### 2) 개발 스택
