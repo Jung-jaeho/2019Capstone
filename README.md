@@ -9,18 +9,18 @@
 일산화탄소를 비롯한 실내 대기 오염물질로 인한 사고 사례들이 발생함에 따라(아래 사례 참고), 실내 공기 상태에 대한 지속적인 관심과 모니터링에 대한 필요성이 증가하고 있다. 이에 IoT 센서와 Elasticsearch를 활용한 빅데이터 수집 및 분석을 통해 실시간으로 실내 공기 상태에 대해 모니터링이 가능한 시스템 기획하게 되었다.
 
 ## 2) 개발 스택
-1) Android
+### 1) Android
   - Retrofit2
   - Glide
   - MpAndroidChart
   
-2) Server
+### 2) Server
   - Amazon Web Services
   - Django
   - Elastic Search
   - Firebase
   
-3) Embedded System
+### 3) Embedded System
   - Bluz Arduino
   - Apache http
   - Arduino
